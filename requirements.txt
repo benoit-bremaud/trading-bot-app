@@ -2,4 +2,5 @@ kucoin-python
 pandas
 matplotlib
 python-dotenv
-setuptools
+setuptools<81
+pytest
