@@ -4,3 +4,4 @@ matplotlib
 python-dotenv
 setuptools<81
 pytest
+notebook
