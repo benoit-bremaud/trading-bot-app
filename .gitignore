@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.so
+
+# Environnements virtuels
+.venv/
+venv/
+env/
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Data et modèles (exclure fichiers lourds non versionnés)
+data/
+models/
+
+# Secrets et config
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
