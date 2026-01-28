@@ -1,0 +1,33 @@
+{
+  "default": {
+    "signal": {
+      "threshold": 0.6
+    },
+    "risk": {
+      "max_position_pct": 0.02
+    }
+  },
+  "timeframes": {
+    "5m": {
+      "signal": {
+        "threshold": 0.65
+      }
+    }
+  },
+  "pairs": {
+    "BTC-USDT": {
+      "risk": {
+        "max_position_pct": 0.03
+      }
+    }
+  },
+  "pair_timeframe": {
+    "BTC-USDT": {
+      "5m": {
+        "risk": {
+          "max_position_pct": 0.04
+        }
+      }
+    }
+  }
+}
