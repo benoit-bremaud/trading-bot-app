@@ -34,17 +34,17 @@
 ## Priority backlog (MVP)
 
 ### P0 — MUST HAVE
-- Data ingestion KuCoin (spot): robust client + retries/backoff + timeframe mapping.
-- OHLCV normalization to `Candle` + tests.
-- Market data provider port implementation + tests.
-- Simple historical storage (CSV) for replay + tests.
-- Minimal backtest loop with PnL + tests.
-- Risk manager baseline (max % per trade, optional ATR/vol) + tests.
+- [DONE] Data ingestion KuCoin (spot): robust client + retries/backoff + timeframe mapping.
+- [DONE] OHLCV normalization to `Candle` + tests.
+- [DONE] Market data provider port implementation + tests.
+- [DONE] Simple historical storage (CSV) for replay + tests.
+- [DONE] Minimal backtest loop with PnL + tests.
+- [PLANNED] Risk manager baseline (max % per trade, optional ATR/vol) + tests.
 
 ### P1 — IMPORTANT
-- Baseline signal model (rules-based).
-- Paper trading execution adapter.
-- Minimal CLI entrypoints (ingest/backtest/run).
+- [PLANNED] Baseline signal model (rules-based).
+- [PLANNED] Paper trading execution adapter.
+- [PLANNED] Minimal CLI entrypoints (ingest/backtest/run).
 
 ### Data ingestion (KuCoin spot)
 - [DONE] KuCoin REST client wrapper with retries and rate-limit handling.
@@ -65,7 +65,7 @@
 - [PLANNED] Model training and evaluation workflow.
 
 ### Backtesting
-- [PLANNED] Backtest engine for candle replay.
+- [DONE] Backtest engine for candle replay (minimal PnL) + tests.
 - [PLANNED] Performance metrics (PnL, drawdown, sharpe, win rate).
 - [PLANNED] Walk-forward / out-of-sample evaluation.
 
@@ -102,6 +102,10 @@
   - Integration test for KuCoin fetch gated by RUN_INTEGRATION=1.
 - 2026-01-29 (merged, PR #9):
   - CSV candle repository + tests.
+- 2026-01-29 (merged, PR #10):
+  - ROADMAP update after CSV storage.
+- 2026-01-29 (merged, PR #11):
+  - Minimal backtest engine (buy-and-hold) with BacktestResult + tests.
 
 ## Current focus
-- P0: minimal backtest loop with PnL + tests.
+- P0: risk manager baseline (max % per trade, optional ATR/vol) + tests.
