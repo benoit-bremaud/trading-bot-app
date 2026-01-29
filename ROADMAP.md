@@ -114,6 +114,8 @@
   - Baseline risk manager with position sizing + tests.
 - 2026-01-29 (merged, PR #15):
   - Roadmap update after PR #14.
+- 2026-01-29 (merged, PR #16):
+  - Roadmap update after PR #15.
 
 ## Current focus
 - P1: baseline signal model (rules-based).
