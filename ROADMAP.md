@@ -37,7 +37,7 @@
 - Data ingestion KuCoin (spot): robust client + retries/backoff + timeframe mapping.
 - OHLCV normalization to `Candle` + tests.
 - Market data provider port implementation + tests.
-- Simple historical storage (CSV/Parquet) for replay + tests.
+- Simple historical storage (CSV) for replay + tests.
 - Minimal backtest loop with PnL + tests.
 - Risk manager baseline (max % per trade, optional ATR/vol) + tests.
 
@@ -51,6 +51,9 @@
 - [DONE] OHLCV normalization to domain Candle.
 - [DONE] Market data provider port implementation + tests.
 - [PLANNED] Optional local persistence (raw + normalized).
+
+### Historical storage
+- [DONE] CSV candle repository with upsert and range filtering + tests.
 
 ### Data processing and features
 - [PLANNED] Indicator pipeline (RSI, MACD, Bollinger).
@@ -97,7 +100,8 @@
   - KuCoin market data provider with retries, timeframe mapping, and OHLCV normalization.
   - Unit tests for normalization, ordering, and retries.
   - Integration test for KuCoin fetch gated by RUN_INTEGRATION=1.
+- 2026-01-29 (merged, PR #9):
+  - CSV candle repository + tests.
 
 ## Current focus
-- P0: historical storage (CSV) for replay + tests.
 - P0: minimal backtest loop with PnL + tests.
