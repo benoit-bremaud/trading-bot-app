@@ -57,7 +57,7 @@ def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]
 def _load_file(path: str) -> dict[str, Any]:
     ext = os.path.splitext(path)[1].lower()
     if ext == ".json":
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     if ext in (".toml", ".tml"):
         import tomllib
@@ -69,6 +69,6 @@ def _load_file(path: str) -> dict[str, Any]:
             import yaml
         except ImportError as exc:
             raise ConfigError("PyYAML is required to load YAML config files") from exc
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
     raise ConfigError(f"Unsupported config extension: {ext}")
