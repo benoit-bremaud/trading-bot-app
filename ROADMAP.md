@@ -31,6 +31,21 @@
 - [DONE] CI with Python 3.11/3.12 + ruff/mypy/pytest.
 - [PLANNED] Cache pip and optimize dependency install time.
 
+## Priority backlog (MVP)
+
+### P0 — MUST HAVE
+- Data ingestion KuCoin (spot): robust client + retries/backoff + timeframe mapping.
+- OHLCV normalization to `Candle` + tests.
+- Market data provider port implementation + tests.
+- Simple historical storage (CSV/Parquet) for replay + tests.
+- Minimal backtest loop with PnL + tests.
+- Risk manager baseline (max % per trade, optional ATR/vol) + tests.
+
+### P1 — IMPORTANT
+- Baseline signal model (rules-based).
+- Paper trading execution adapter.
+- Minimal CLI entrypoints (ingest/backtest/run).
+
 ### Data ingestion (KuCoin spot)
 - [PLANNED] KuCoin REST client wrapper with retries and rate-limit handling.
 - [PLANNED] OHLCV normalization to domain Candle.
@@ -77,6 +92,7 @@
   - Formatting and typing cleanup to satisfy ruff/mypy.
   - CI test fix: set PYTHONPATH for pytest.
   - Added requirements-dev.txt and pyproject.toml tooling config.
+- 2026-01-29: Prioritized MVP tasks (P0/P1) agreed.
 
 ## Current focus
 - Start P1: data-ingestion-kucoin (client, normalization, tests).
