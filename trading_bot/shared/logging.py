@@ -60,7 +60,7 @@ class ContextLogger:
 
 
 def configure_logging(level: str | None = None, json_output: bool | None = None) -> None:
-    log_level = level or os.getenv("TRADING_BOT_LOG_LEVEL", "INFO")
+    log_level = level if level is not None else os.getenv("TRADING_BOT_LOG_LEVEL", "INFO")
     json_flag = json_output
     if json_flag is None:
         json_flag = os.getenv("TRADING_BOT_LOG_JSON", "false").lower() in ("1", "true", "yes")

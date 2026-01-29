@@ -20,7 +20,10 @@ class Config:
 
 
 def load_config(path: str | None = None) -> Config:
-    config_path = path or os.getenv("TRADING_BOT_CONFIG", "config/config.json")
+    if path is None:
+        config_path = os.getenv("TRADING_BOT_CONFIG", "config/config.json")
+    else:
+        config_path = path
     if not os.path.exists(config_path):
         return Config(raw={})
 
@@ -64,7 +67,7 @@ def _load_file(path: str) -> dict[str, Any]:
             return tomllib.load(f)
     if ext in (".yaml", ".yml"):
         try:
-            import yaml
+            import yaml  # type: ignore[import-untyped]
         except ImportError as exc:
             raise ConfigError("PyYAML is required to load YAML config files") from exc
         with open(path, encoding="utf-8") as f:
