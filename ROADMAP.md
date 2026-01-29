@@ -5,6 +5,7 @@
 - Scope: data ingestion, signals/AI, backtesting, risk, execution, monitoring, and operator UX.
 - Constraints: CLEAN/SOLID architecture, patterns only when justified, tests are mandatory.
 - Process: commit + push + PR after each feature; PR body in Markdown with Summary/Testing/Notes.
+- Roadmap maintenance: update this file after each merge and when new feature ideas appear.
 
 ## Status legend
 - [DONE] merged to main
@@ -27,7 +28,7 @@
 - [PLANNED] Metrics export integration (Prometheus or similar) and tracing.
 
 ### CI/Quality
-- [IN PROGRESS] CI with Python 3.11/3.12 + ruff/mypy/pytest.
+- [DONE] CI with Python 3.11/3.12 + ruff/mypy/pytest.
 - [PLANNED] Cache pip and optimize dependency install time.
 
 ### Data ingestion (KuCoin spot)
@@ -71,9 +72,11 @@
   - Config: dynamic merge + example + tests (PR #2).
   - Cleanup: removed IDE files and updated .gitignore (PR #3).
   - Logging + metrics scaffolding + tests (PR #4).
-- 2026-01-29 (in progress, PR #5):
-  - CI quality: ruff/mypy/pytest setup for Python 3.11/3.12.
+- 2026-01-29 (merged, PR #5):
+  - CI quality gates: ruff + mypy + pytest on Python 3.11/3.12.
+  - Formatting and typing cleanup to satisfy ruff/mypy.
+  - CI test fix: set PYTHONPATH for pytest.
+  - Added requirements-dev.txt and pyproject.toml tooling config.
 
 ## Current focus
-- Merge PR #5 (CI quality).
 - Start P1: data-ingestion-kucoin (client, normalization, tests).
