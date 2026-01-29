@@ -54,7 +54,7 @@ class CsvCandleRepository(CandleRepository):
         end_dt = _ensure_utc(end) if end else None
         candles: list[Candle] = []
 
-        with open(path, "r", encoding="utf-8", newline="") as handle:
+        with open(path, encoding="utf-8", newline="") as handle:
             reader = csv.DictReader(handle)
             for row in reader:
                 timestamp = datetime.fromtimestamp(int(row["timestamp"]), tz=UTC)
