@@ -106,6 +106,10 @@
   - ROADMAP update after CSV storage.
 - 2026-01-29 (merged, PR #11):
   - Minimal backtest engine (buy-and-hold) with BacktestResult + tests.
+- 2026-01-29 (merged, PR #12):
+  - Roadmap update after backtest merge.
+- 2026-01-29 (merged, PR #13):
+  - Roadmap update after PR #12.
 
 ## Current focus
 - P0: risk manager baseline (max % per trade, optional ATR/vol) + tests.
