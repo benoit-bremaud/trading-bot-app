@@ -6,11 +6,9 @@ from typing import Any, Protocol
 
 
 class MetricsRecorder(Protocol):
-    def increment(self, name: str, value: int = 1, **tags: Any) -> None:
-        ...
+    def increment(self, name: str, value: int = 1, **tags: Any) -> None: ...
 
-    def gauge(self, name: str, value: float, **tags: Any) -> None:
-        ...
+    def gauge(self, name: str, value: float, **tags: Any) -> None: ...
 
 
 def _tag_key(tags: Mapping[str, Any]) -> tuple[tuple[str, str], ...]:

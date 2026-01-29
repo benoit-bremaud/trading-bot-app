@@ -29,9 +29,7 @@ def load_config(path: str | None = None) -> Config:
     return Config(raw=data)
 
 
-def resolve_pair_config(
-    raw: Mapping[str, Any], symbol: str, timeframe: str
-) -> dict[str, Any]:
+def resolve_pair_config(raw: Mapping[str, Any], symbol: str, timeframe: str) -> dict[str, Any]:
     base = dict(raw.get("default", {}))
     base = deep_merge(base, dict(raw.get("timeframes", {}).get(timeframe, {})))
     base = deep_merge(base, dict(raw.get("pairs", {}).get(symbol, {})))
