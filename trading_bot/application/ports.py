@@ -17,6 +17,18 @@ class MarketDataProvider(Protocol):
     ) -> Sequence[Candle]: ...
 
 
+class CandleRepository(Protocol):
+    def save(self, symbol: str, timeframe: str, candles: Sequence[Candle]) -> None: ...
+
+    def load(
+        self,
+        symbol: str,
+        timeframe: str,
+        start: datetime | None = None,
+        end: datetime | None = None,
+    ) -> Sequence[Candle]: ...
+
+
 class SignalModel(Protocol):
     def score(self, candles: Sequence[Candle], profile: PairProfile) -> float: ...
 
