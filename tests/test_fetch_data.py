@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from dotenv import load_dotenv
@@ -17,7 +17,7 @@ pytestmark = pytest.mark.integration
 )
 def test_fetch_kline_data():
     provider = KucoinMarketDataProvider()
-    end = datetime.now(timezone.utc)
+    end = datetime.now(UTC)
     start = end - timedelta(hours=24)
 
     candles = provider.get_ohlcv("BTC-USDT", "1h", start, end)

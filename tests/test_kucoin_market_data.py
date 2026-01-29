@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -51,7 +51,7 @@ def test_normalize_kucoin_kline_parses_values():
     row = ["1545904980", "0.058", "0.049", "0.058", "0.049", "0.018", "0.000945"]
     candle = normalize_kucoin_kline(row)
 
-    assert candle.timestamp == datetime.fromtimestamp(1545904980, tz=timezone.utc)
+    assert candle.timestamp == datetime.fromtimestamp(1545904980, tz=UTC)
     assert candle.open == 0.058
     assert candle.close == 0.049
     assert candle.high == 0.058
@@ -63,7 +63,7 @@ def test_normalize_kucoin_kline_handles_milliseconds():
     row = ["1545904980000", "1", "1", "1", "1", "1", "0"]
     candle = normalize_kucoin_kline(row)
 
-    assert candle.timestamp == datetime.fromtimestamp(1545904980, tz=timezone.utc)
+    assert candle.timestamp == datetime.fromtimestamp(1545904980, tz=UTC)
 
 
 def test_provider_sorts_and_filters_candles():
@@ -81,8 +81,8 @@ def test_provider_sorts_and_filters_candles():
         sleep=lambda _: None,
     )
 
-    start = datetime.fromtimestamp(start_ts, tz=timezone.utc)
-    end = datetime.fromtimestamp(end_ts, tz=timezone.utc)
+    start = datetime.fromtimestamp(start_ts, tz=UTC)
+    end = datetime.fromtimestamp(end_ts, tz=UTC)
     candles = provider.get_ohlcv("BTC-USDT", "1h", start, end)
 
     assert [candle.open for candle in candles] == [1.0, 2.0]
@@ -94,7 +94,7 @@ def test_provider_sorts_and_filters_candles():
 
 
 def test_provider_retries_on_failure():
-    start = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    start = datetime(2024, 1, 1, tzinfo=UTC)
     end = start + timedelta(hours=1)
     rows = [[str(int(start.timestamp())), "1", "1", "1", "1", "1", "0"]]
     market = FlakyMarket(rows, fail_times=1)
@@ -111,7 +111,7 @@ def test_provider_retries_on_failure():
 
 
 def test_provider_raises_after_retries_exhausted():
-    start = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    start = datetime(2024, 1, 1, tzinfo=UTC)
     end = start + timedelta(hours=1)
     rows: list[list[str]] = []
     market = FlakyMarket(rows, fail_times=2)

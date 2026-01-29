@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import os
 import time
-from collections.abc import Iterable, Sequence
-from datetime import datetime, timezone
-from typing import Any, Callable
+from collections.abc import Callable, Iterable, Sequence
+from datetime import UTC, datetime
+from typing import Any
 
 from kucoin.client import Market
 
@@ -88,7 +88,7 @@ def normalize_kucoin_kline(row: Sequence[Any]) -> Candle:
     volume = float(row[5])
 
     return Candle(
-        timestamp=datetime.fromtimestamp(timestamp, tz=timezone.utc),
+        timestamp=datetime.fromtimestamp(timestamp, tz=UTC),
         open=open_price,
         high=high_price,
         low=low_price,
@@ -114,8 +114,8 @@ def _parse_epoch_seconds(raw: Any) -> int:
 
 def _ensure_utc(dt: datetime) -> datetime:
     if dt.tzinfo is None:
-        return dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc)
+        return dt.replace(tzinfo=UTC)
+    return dt.astimezone(UTC)
 
 
 def _dedupe_sorted(candles: Iterable[Candle]) -> list[Candle]:
