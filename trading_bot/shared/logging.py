@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 
 class JsonFormatter(logging.Formatter):
@@ -32,7 +33,7 @@ class ContextLogger:
         self._logger = logger
         self._context = dict(context or {})
 
-    def bind(self, **context: Any) -> "ContextLogger":
+    def bind(self, **context: Any) -> ContextLogger:
         merged = dict(self._context)
         merged.update(context)
         return ContextLogger(self._logger, merged)
@@ -59,7 +60,7 @@ class ContextLogger:
 
 
 def configure_logging(level: str | None = None, json_output: bool | None = None) -> None:
-    log_level = level or os.getenv("TRADING_BOT_LOG_LEVEL", "INFO")
+    log_level = level if level is not None else os.getenv("TRADING_BOT_LOG_LEVEL", "INFO")
     json_flag = json_output
     if json_flag is None:
         json_flag = os.getenv("TRADING_BOT_LOG_JSON", "false").lower() in ("1", "true", "yes")
@@ -74,9 +75,7 @@ def configure_logging(level: str | None = None, json_output: bool | None = None)
     if json_flag:
         formatter: logging.Formatter = JsonFormatter()
     else:
-        formatter = logging.Formatter(
-            "%(asctime)s %(levelname)s %(name)s %(message)s %(context)s"
-        )
+        formatter = logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s %(context)s")
     handler.setFormatter(formatter)
     handler.addFilter(ContextFilter())
     root.addHandler(handler)

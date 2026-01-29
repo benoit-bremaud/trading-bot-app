@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 
 class ConfigError(ValueError):
@@ -19,7 +20,10 @@ class Config:
 
 
 def load_config(path: str | None = None) -> Config:
-    config_path = path or os.getenv("TRADING_BOT_CONFIG", "config/config.json")
+    if path is None:
+        config_path = os.getenv("TRADING_BOT_CONFIG", "config/config.json")
+    else:
+        config_path = path
     if not os.path.exists(config_path):
         return Config(raw={})
 
@@ -54,7 +58,7 @@ def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]
 def _load_file(path: str) -> dict[str, Any]:
     ext = os.path.splitext(path)[1].lower()
     if ext == ".json":
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
     if ext in (".toml", ".tml"):
         import tomllib
@@ -63,9 +67,9 @@ def _load_file(path: str) -> dict[str, Any]:
             return tomllib.load(f)
     if ext in (".yaml", ".yml"):
         try:
-            import yaml
+            import yaml  # type: ignore[import-untyped]
         except ImportError as exc:
             raise ConfigError("PyYAML is required to load YAML config files") from exc
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
     raise ConfigError(f"Unsupported config extension: {ext}")

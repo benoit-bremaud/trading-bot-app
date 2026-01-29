@@ -1,15 +1,14 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any, Mapping, Protocol
+from typing import Any, Protocol
 
 
 class MetricsRecorder(Protocol):
-    def increment(self, name: str, value: int = 1, **tags: Any) -> None:
-        ...
+    def increment(self, name: str, value: int = 1, **tags: Any) -> None: ...
 
-    def gauge(self, name: str, value: float, **tags: Any) -> None:
-        ...
+    def gauge(self, name: str, value: float, **tags: Any) -> None: ...
 
 
 def _tag_key(tags: Mapping[str, Any]) -> tuple[tuple[str, str], ...]:

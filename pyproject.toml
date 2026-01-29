@@ -1,0 +1,22 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "W", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+check_untyped_defs = false
+
+[tool.pytest.ini_options]
+addopts = "-q"
+markers = [
+  "integration: tests that call external services or require network access"
+]

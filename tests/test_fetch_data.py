@@ -1,17 +1,24 @@
-import pytest
-from kucoin.client import Market
 import os
-from dotenv import load_dotenv
 import time
+
+import pytest
+from dotenv import load_dotenv
+from kucoin.client import Market
 
 load_dotenv()
 
+pytestmark = pytest.mark.integration
 
+
+@pytest.mark.skipif(
+    os.getenv("RUN_INTEGRATION") != "1",
+    reason="Set RUN_INTEGRATION=1 to run KuCoin API tests.",
+)
 def test_fetch_kline_data():
-    api_url = os.getenv('KUCOIN_API_URL', 'https://api.kucoin.com')
+    api_url = os.getenv("KUCOIN_API_URL", "https://api.kucoin.com")
     client = Market(url=api_url)
-    symbol = 'BTC-USDT'
-    interval = '1hour'
+    symbol = "BTC-USDT"
+    interval = "1hour"
     now = int(time.time())
     start = now - 24 * 60 * 60  # 24h en arrière
 
