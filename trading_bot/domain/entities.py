@@ -21,3 +21,16 @@ class PairProfile:
     avg_volume: float
     volatility: float
     atr: float | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class BacktestResult:
+    symbol: str
+    timeframe: str
+    start: datetime
+    end: datetime
+    initial_cash: float
+    final_cash: float
+    pnl: float
+    return_pct: float
+    trades: int
