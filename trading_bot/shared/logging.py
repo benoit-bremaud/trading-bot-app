@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any, Mapping
+from collections.abc import Mapping
+from typing import Any
 
 
 class JsonFormatter(logging.Formatter):
@@ -32,7 +33,7 @@ class ContextLogger:
         self._logger = logger
         self._context = dict(context or {})
 
-    def bind(self, **context: Any) -> "ContextLogger":
+    def bind(self, **context: Any) -> ContextLogger:
         merged = dict(self._context)
         merged.update(context)
         return ContextLogger(self._logger, merged)

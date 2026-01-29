@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 
 @dataclass(frozen=True, slots=True)
@@ -21,4 +20,4 @@ class PairProfile:
     timeframe: str
     avg_volume: float
     volatility: float
-    atr: Optional[float] = None
+    atr: float | None = None
