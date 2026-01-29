@@ -4,7 +4,7 @@ from collections.abc import Sequence
 from datetime import datetime
 from typing import Protocol
 
-from trading_bot.domain.entities import Candle, PairProfile
+from trading_bot.domain.entities import BacktestResult, Candle, PairProfile
 
 
 class MarketDataProvider(Protocol):
@@ -42,7 +42,9 @@ class RiskManager(Protocol):
 
 
 class BacktestEngine(Protocol):
-    def run(self, symbol: str, timeframe: str, start: datetime, end: datetime) -> None: ...
+    def run(
+        self, symbol: str, timeframe: str, start: datetime, end: datetime
+    ) -> BacktestResult: ...
 
 
 class OrderExecutor(Protocol):
