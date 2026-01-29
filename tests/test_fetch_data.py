@@ -1,9 +1,10 @@
 import os
-import time
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from dotenv import load_dotenv
-from kucoin.client import Market
+
+from trading_bot.infrastructure.kucoin_market_data import KucoinMarketDataProvider
 
 load_dotenv()
 
@@ -15,19 +16,11 @@ pytestmark = pytest.mark.integration
     reason="Set RUN_INTEGRATION=1 to run KuCoin API tests.",
 )
 def test_fetch_kline_data():
-    api_url = os.getenv("KUCOIN_API_URL", "https://api.kucoin.com")
-    client = Market(url=api_url)
-    symbol = "BTC-USDT"
-    interval = "1hour"
-    now = int(time.time())
-    start = now - 24 * 60 * 60  # 24h en arrière
+    provider = KucoinMarketDataProvider()
+    end = datetime.now(UTC)
+    start = end - timedelta(hours=24)
 
-    data = client.get_kline(symbol=symbol, kline_type=interval, startAt=start, endAt=now)
+    candles = provider.get_ohlcv("BTC-USDT", "1h", start, end)
 
-    assert data is not None
-    assert isinstance(data, list)
-    assert len(data) > 0
-
-    # Optionnel : vérifier la structure du premier élément
-    first = data[0]
-    assert len(first) == 7  # time, open, close, high, low, volume, turnover
+    assert isinstance(candles, list)
+    assert len(candles) > 0
