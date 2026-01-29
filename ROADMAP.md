@@ -39,7 +39,7 @@
 - [DONE] Market data provider port implementation + tests.
 - [DONE] Simple historical storage (CSV) for replay + tests.
 - [DONE] Minimal backtest loop with PnL + tests.
-- [PLANNED] Risk manager baseline (max % per trade, optional ATR/vol) + tests.
+- [DONE] Risk manager baseline (max % per trade, optional ATR/vol) + tests.
 
 ### P1 — IMPORTANT
 - [PLANNED] Baseline signal model (rules-based).
@@ -70,7 +70,7 @@
 - [PLANNED] Walk-forward / out-of-sample evaluation.
 
 ### Risk and money management
-- [PLANNED] Position sizing (risk % per trade, dynamic based on volatility/ATR).
+- [DONE] Position sizing (risk % per trade, dynamic based on volatility/ATR).
 - [PLANNED] Portfolio constraints and max exposure rules.
 
 ### Execution (spot)
@@ -110,6 +110,8 @@
   - Roadmap update after backtest merge.
 - 2026-01-29 (merged, PR #13):
   - Roadmap update after PR #12.
+- 2026-01-29 (merged, PR #14):
+  - Baseline risk manager with position sizing + tests.
 
 ## Current focus
-- P0: risk manager baseline (max % per trade, optional ATR/vol) + tests.
+- P1: baseline signal model (rules-based).
