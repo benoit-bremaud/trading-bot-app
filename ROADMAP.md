@@ -47,9 +47,9 @@
 - Minimal CLI entrypoints (ingest/backtest/run).
 
 ### Data ingestion (KuCoin spot)
-- [PLANNED] KuCoin REST client wrapper with retries and rate-limit handling.
-- [PLANNED] OHLCV normalization to domain Candle.
-- [PLANNED] Market data provider port implementation + tests.
+- [DONE] KuCoin REST client wrapper with retries and rate-limit handling.
+- [DONE] OHLCV normalization to domain Candle.
+- [DONE] Market data provider port implementation + tests.
 - [PLANNED] Optional local persistence (raw + normalized).
 
 ### Data processing and features
@@ -93,6 +93,11 @@
   - CI test fix: set PYTHONPATH for pytest.
   - Added requirements-dev.txt and pyproject.toml tooling config.
 - 2026-01-29: Prioritized MVP tasks (P0/P1) agreed.
+- 2026-01-29 (merged, PR #7):
+  - KuCoin market data provider with retries, timeframe mapping, and OHLCV normalization.
+  - Unit tests for normalization, ordering, and retries.
+  - Integration test for KuCoin fetch gated by RUN_INTEGRATION=1.
 
 ## Current focus
-- Start P1: data-ingestion-kucoin (client, normalization, tests).
+- P0: historical storage (CSV) for replay + tests.
+- P0: minimal backtest loop with PnL + tests.
