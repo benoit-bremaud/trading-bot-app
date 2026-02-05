@@ -42,9 +42,9 @@
 - [DONE] Risk manager baseline (max % per trade, optional ATR/vol) + tests.
 
 ### P1 — IMPORTANT
-- [PLANNED] Baseline signal model (rules-based).
-- [PLANNED] Paper trading execution adapter.
-- [PLANNED] Minimal CLI entrypoints (ingest/backtest/run).
+- [DONE] Baseline signal model (rules-based).
+- [DONE] Paper trading execution adapter.
+- [DONE] Minimal CLI entrypoints (ingest/backtest/run).
 
 ### Data ingestion (KuCoin spot)
 - [DONE] KuCoin REST client wrapper with retries and rate-limit handling.
@@ -56,11 +56,12 @@
 - [DONE] CSV candle repository with upsert and range filtering + tests.
 
 ### Data processing and features
-- [PLANNED] Indicator pipeline (RSI, MACD, Bollinger).
+- [DONE] Indicator pipeline (RSI, MACD, Bollinger).
 - [PLANNED] Feature engineering for AI models.
 
 ### Strategy and AI
-- [PLANNED] Signal model interface + baseline heuristic model.
+- [DONE] Signal model interface + baseline heuristic model.
+- [DONE] Indicator-based signal model (RSI, MACD, Bollinger Bands).
 - [PLANNED] Pattern recognition (head-shoulders, double bottom).
 - [PLANNED] Model training and evaluation workflow.
 
@@ -74,12 +75,12 @@
 - [PLANNED] Portfolio constraints and max exposure rules.
 
 ### Execution (spot)
-- [PLANNED] Paper trading mode.
+- [DONE] Paper trading mode.
 - [PLANNED] Live order execution (market orders first).
 - [PLANNED] Safety checks (min size, slippage, cooldowns).
 
 ### UX / Ops
-- [PLANNED] CLI entrypoints for ingestion, backtests, and live.
+- [DONE] CLI entrypoints for ingestion, backtests, and live.
 - [PLANNED] Minimal dashboard (signals, positions, PnL).
 
 ## History (chronological)
@@ -114,8 +115,23 @@
   - Baseline risk manager with position sizing + tests.
 - 2026-01-29 (merged, PR #15):
   - Roadmap update after PR #14.
+- 2026-01-29 (merged, PR #17):
+  - Baseline signal model (moving-average crossover) + tests.
+- 2026-01-29 (merged, PR #18):
+  - Roadmap update after PR #17.
 - 2026-01-29 (merged, PR #16):
   - Roadmap update after PR #15.
+- 2026-02-05:
+  - CLI entrypoints: backtest.py and run.py scripts.
+  - Paper trading execution fully functional.
+  - Tests for all CLI scripts.
+  - README updated with usage examples.
+- 2026-02-05 (merged, current):
+  - Technical indicators pipeline: RSI, MACD, Bollinger Bands.
+  - Indicator-based signal model with weighted scoring.
+  - Clean architecture: ports in application, implementations in infrastructure.
+  - 38 new tests for indicators and signal model (100% passing).
 
 ## Current focus
-- P1: baseline signal model (rules-based).
+- Pattern recognition and model training workflow.
+- Dashboard for visualization of signals and positions.

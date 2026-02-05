@@ -1,2 +1,12 @@
+# Development dependencies for trading-bot-app
+
+# Include production dependencies
+-r requirements-prod.txt
+
+# Code quality and linting
 ruff
 mypy
+
+# Testing
+pytest
+pytest-cov

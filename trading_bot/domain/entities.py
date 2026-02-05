@@ -24,6 +24,24 @@ class PairProfile:
 
 
 @dataclass(frozen=True, slots=True)
+class Indicator:
+    """Value object représentant un indicateur technique calculé"""
+
+    name: str
+    timestamp: datetime
+    value: float
+    metadata: dict[str, float] | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class EnrichedCandle:
+    """Candle enrichie avec ses indicateurs techniques"""
+
+    candle: Candle
+    indicators: dict[str, Indicator]
+
+
+@dataclass(frozen=True, slots=True)
 class BacktestResult:
     symbol: str
     timeframe: str

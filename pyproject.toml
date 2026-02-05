@@ -1,6 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trading-bot-app"
+version = "0.1.0"
+description = "Trading bot application with clean architecture"
+requires-python = ">=3.11"
+dependencies = [
+    "ccxt>=4.0.0",
+    "pandas>=2.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["trading_bot*", "scripts*"]
+exclude = ["tests*", "data*", "config*", "models*", "notebooks*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B"]
 
 [tool.ruff.format]

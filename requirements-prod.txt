@@ -1,0 +1,4 @@
+# Production dependencies for trading-bot-app
+
+kucoin-python
+python-dotenv
