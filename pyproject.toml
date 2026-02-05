@@ -8,9 +8,10 @@ version = "0.1.0"
 description = "Trading bot application with clean architecture"
 requires-python = ">=3.11"
 dependencies = [
-    "ccxt>=4.0.0",
+    "kucoin-python>=1.0.26",
     "pandas>=2.0.0",
     "python-dotenv>=1.0.0",
+    "flask>=3.0.0",
 ]
 
 [project.optional-dependencies]
@@ -22,7 +23,7 @@ dev = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["trading_bot*", "scripts*"]
+include = ["trading_bot*", "scripts*", "dashboard*"]
 exclude = ["tests*", "data*", "config*", "models*", "notebooks*"]
 
 [tool.ruff]

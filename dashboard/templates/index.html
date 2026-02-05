@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Trading Bot Dashboard</h1>
+            <p class="subtitle">Visualisation des données de marché et signaux de trading</p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="symbol">Symbol:</label>
+                <select id="symbol">
+                    <option value="BTC-USDT" selected>BTC-USDT</option>
+                    <option value="ETH-USDT">ETH-USDT</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="timeframe">Timeframe:</label>
+                <select id="timeframe">
+                    <option value="1h" selected>1h</option>
+                    <option value="4h">4h</option>
+                    <option value="1d">1d</option>
+                </select>
+            </div>
+
+            <button id="loadBtn" onclick="loadChart()">📊 Charger les données</button>
+            <button id="signalsBtn" onclick="loadSignals()">🎯 Afficher les signaux</button>
+            <button id="backtestBtn" onclick="runBacktest()">⚡ Lancer Backtest</button>
+        </div>
+
+        <div id="status" class="status"></div>
+
+        <div id="chart" class="chart-container"></div>
+
+        <div id="backtest-results" class="backtest-results" style="display: none;">
+            <h2>📈 Résultats du Backtest</h2>
+            <div id="backtest-content"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Trading Bot App - Dashboard v1.0 - <a href="https://github.com/benoit-bremaud/trading-bot-app" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+</body>
+</html>

@@ -81,7 +81,8 @@
 
 ### UX / Ops
 - [DONE] CLI entrypoints for ingestion, backtests, and live.
-- [PLANNED] Minimal dashboard (signals, positions, PnL).
+- [DONE] Web dashboard (Flask + Plotly.js) with candlesticks, indicators, signals, backtest.
+- [PLANNED] Advanced dashboard metrics and strategy comparison.
 
 ## History (chronological)
 
@@ -126,12 +127,21 @@
   - Paper trading execution fully functional.
   - Tests for all CLI scripts.
   - README updated with usage examples.
-- 2026-02-05 (merged, current):
+- 2026-02-05:
   - Technical indicators pipeline: RSI, MACD, Bollinger Bands.
   - Indicator-based signal model with weighted scoring.
   - Clean architecture: ports in application, implementations in infrastructure.
   - 38 new tests for indicators and signal model (100% passing).
+- 2026-02-05 (current):
+  - Dashboard web Flask with Plotly.js for visualization.
+  - API REST endpoints: /api/candles, /api/signals, /api/backtest.
+  - Interactive candlestick charts with indicators overlay.
+  - Signal markers (buy/sell) on charts.
+  - Backtest results display (PnL, trades, win rate).
+  - 5 new tests for dashboard API (99 tests passing total).
 
 ## Current focus
-- Pattern recognition and model training workflow.
-- Dashboard for visualization of signals and positions.
+- Feature engineering pipeline for ML models.
+- Pattern recognition (not prediction!) based labeling strategy.
+- First ML model (Random Forest) for pattern recognition.
+- Advanced dashboard metrics (Sharpe, drawdown).

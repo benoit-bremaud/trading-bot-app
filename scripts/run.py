@@ -15,7 +15,7 @@ import sys
 import time
 from datetime import UTC, datetime, timedelta
 
-from trading_bot.application.risk_manager import RiskManager
+from trading_bot.application.risk_manager import BaselineRiskManager
 from trading_bot.application.signal_model import (
     MovingAverageCrossoverSignalModel,
 )
@@ -26,7 +26,7 @@ from trading_bot.infrastructure.kucoin_market_data import (
 from trading_bot.infrastructure.paper_order_executor import (
     PaperOrderExecutor,
 )
-from trading_bot.shared.config import Config
+from trading_bot.shared.config import load_config
 from trading_bot.shared.logging import get_logger
 
 
@@ -87,8 +87,8 @@ def main() -> int:
 
     try:
         # Load configuration
-        config = Config(config_path=args.config)
-        pair_config = config.get_pair_config(args.symbol, args.timeframe)
+        config = load_config(args.config)
+        pair_config = config.for_pair(args.symbol, args.timeframe)
 
         # Setup components
         market_data = KucoinMarketDataProvider()
@@ -96,9 +96,13 @@ def main() -> int:
             short_window=pair_config.get("signal_short_window", 10),
             long_window=pair_config.get("signal_long_window", 30),
         )
-        risk_manager = RiskManager(
-            max_risk_pct=pair_config.get("max_risk_pct", 0.02),
-            use_volatility=pair_config.get("use_volatility_sizing", False),
+
+        # Configure risk manager
+        max_position_pct = pair_config.get("max_position_pct", 0.02)
+        use_volatility = pair_config.get("use_volatility_sizing", False)
+        risk_manager = BaselineRiskManager(
+            max_position_pct=max_position_pct,
+            volatility_target=0.02 if use_volatility else None,
         )
 
         # Price getter for paper executor

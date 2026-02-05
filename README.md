@@ -59,6 +59,24 @@ python scripts/backtest.py --symbol BTC-USDT --timeframe 1h --days 30 --cash 100
 
 Les résultats affichent le PnL, le rendement en %, et le nombre de trades.
 
+### Dashboard Web
+
+Lancez le dashboard pour visualiser les données, indicateurs et signaux :
+
+```bash
+python scripts/start_dashboard.py
+```
+
+Ouvrez votre navigateur : [http://localhost:5000](http://localhost:5000)
+
+Le dashboard permet de :
+- Visualiser les graphiques candlestick avec volume
+- Afficher les indicateurs techniques (RSI, MACD, Bollinger Bands)
+- Voir les signaux de trading (buy/sell)
+- Lancer des backtests et afficher les résultats
+
+Voir [dashboard/README.md](dashboard/README.md) pour plus de détails.
+
 ### Paper Trading
 
 Lancez le bot en mode paper trading (simulation en temps réel) :
@@ -147,12 +165,15 @@ Voir [ROADMAP.md](ROADMAP.md) pour la feuille de route détaillée.
 - ✅ Pipeline d'enrichissement de données avec indicateurs
 - ✅ Signal model basé sur les indicateurs techniques
 - ✅ Architecture hexagonale pour indicateurs (ports + implémentations)
+- ✅ **Dashboard web Flask avec Plotly.js**
+- ✅ **API REST pour candles, signaux, backtest**
 
 ### Prévues
-- Lecture temps réel du marché via WebSocket KuCoin
-- Reconnaissance de figures : tête-épaules, double creux
-- Métriques de performance avancées (Sharpe, drawdown, win rate)
-- Tableau de bord interactif
+- Feature engineering et pipeline ML
+- Reconnaissance de patterns (pas de prédiction!)
+- Modèles ML (Random Forest, XGBoost, LSTM)
+- Métriques avancées (Sharpe, drawdown, Sortino)
+- WebSocket temps réel KuCoin
 
 ## 📄 Licence
 
