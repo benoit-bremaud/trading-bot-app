@@ -132,13 +132,15 @@
   - Indicator-based signal model with weighted scoring.
   - Clean architecture: ports in application, implementations in infrastructure.
   - 38 new tests for indicators and signal model (100% passing).
-- 2026-02-05 (current):
+- 2026-02-05 (merged, PR #20):
   - Dashboard web Flask with Plotly.js for visualization.
   - API REST endpoints: /api/candles, /api/signals, /api/backtest.
   - Interactive candlestick charts with indicators overlay.
   - Signal markers (buy/sell) on charts.
   - Backtest results display (PnL, trades, win rate).
   - 5 new tests for dashboard API (99 tests passing total).
+  - Fix: added setuptools to requirements-prod.txt for pkg_resources dependency.
+  - AUDIT_REPORT.md and GUIDE_TEST_LOCAL.md added.
 
 ## Current focus
 - Feature engineering pipeline for ML models.
