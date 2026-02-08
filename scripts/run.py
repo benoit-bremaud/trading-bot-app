@@ -15,11 +15,24 @@ import sys
 import time
 from datetime import UTC, datetime, timedelta
 
+from trading_bot.application.indicators import IndicatorPipeline
 from trading_bot.application.risk_manager import BaselineRiskManager
 from trading_bot.application.signal_model import (
-    MovingAverageCrossoverSignalModel,
+    IndicatorBasedSignalModel,
+)
+from trading_bot.application.trading_safety import (
+    IdempotencyGuard,
+    RiskPolicy,
+    TradingSafetyController,
+    TradingSafetyState,
 )
 from trading_bot.domain.entities import PairProfile
+from trading_bot.infrastructure.indicators import (
+    BollingerBandsCalculator,
+    DefaultIndicatorPipeline,
+    MACDCalculator,
+    RSICalculator,
+)
 from trading_bot.infrastructure.kucoin_market_data import (
     KucoinMarketDataProvider,
 )
@@ -31,7 +44,9 @@ from trading_bot.shared.logging import get_logger
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run the trading bot in paper trading mode")
+    parser = argparse.ArgumentParser(
+        description="Run the trading bot in paper trading mode"
+    )
     parser.add_argument(
         "--symbol",
         type=str,
@@ -73,6 +88,11 @@ def main() -> int:
         action="store_true",
         help="Display signals without executing trades",
     )
+    parser.add_argument(
+        "--kill-switch",
+        action="store_true",
+        help="Immediately block entries and close open positions",
+    )
 
     args = parser.parse_args()
 
@@ -92,17 +112,86 @@ def main() -> int:
 
         # Setup components
         market_data = KucoinMarketDataProvider()
-        signal_model = MovingAverageCrossoverSignalModel(
-            short_window=pair_config.get("signal_short_window", 10),
-            long_window=pair_config.get("signal_long_window", 30),
+        signal_cfg = pair_config.get("signal", {})
+        signal_model = IndicatorBasedSignalModel(
+            entry_threshold=float(
+                signal_cfg.get("entry_threshold", signal_cfg.get("threshold", 0.6))
+            ),
+            rsi_oversold=float(signal_cfg.get("rsi_oversold", 30.0)),
+            rsi_overbought=float(signal_cfg.get("rsi_overbought", 70.0)),
+            use_macd=bool(signal_cfg.get("use_macd", True)),
+            use_bollinger=bool(signal_cfg.get("use_bollinger", True)),
+        )
+        indicator_pipeline: IndicatorPipeline = DefaultIndicatorPipeline()
+        indicator_pipeline.add_indicator(
+            RSICalculator(period=int(signal_cfg.get("rsi_period", 14)))
+        )
+        indicator_pipeline.add_indicator(
+            MACDCalculator(
+                fast=int(signal_cfg.get("macd_fast", 12)),
+                slow=int(signal_cfg.get("macd_slow", 26)),
+                signal=int(signal_cfg.get("macd_signal", 9)),
+            )
+        )
+        indicator_pipeline.add_indicator(
+            BollingerBandsCalculator(
+                period=int(signal_cfg.get("bb_period", 20)),
+                std_dev=float(signal_cfg.get("bb_std_dev", 2.0)),
+            )
         )
 
+        risk_cfg = pair_config.get("risk", {})
+
         # Configure risk manager
-        max_position_pct = pair_config.get("max_position_pct", 0.02)
+        max_position_pct = float(
+            risk_cfg.get(
+                "max_position_pct",
+                pair_config.get("max_position_pct", 0.02),
+            )
+        )
+        max_total_exposure_pct = float(
+            risk_cfg.get(
+                "max_total_exposure_pct",
+                pair_config.get("max_total_exposure_pct", max_position_pct),
+            )
+        )
+        max_daily_loss_pct = float(
+            risk_cfg.get(
+                "max_daily_loss_pct",
+                pair_config.get("max_daily_loss_pct", 0.03),
+            )
+        )
+        max_open_positions = int(
+            risk_cfg.get(
+                "max_open_positions",
+                pair_config.get("max_open_positions", 1),
+            )
+        )
+        stop_loss_pct = float(
+            risk_cfg.get(
+                "stop_loss_pct",
+                pair_config.get("stop_loss_pct", 0.03),
+            )
+        )
+        kill_switch_cfg = bool(pair_config.get("kill_switch", False))
+        kill_switch_enabled = args.kill_switch or kill_switch_cfg
+
         use_volatility = pair_config.get("use_volatility_sizing", False)
         risk_manager = BaselineRiskManager(
             max_position_pct=max_position_pct,
             volatility_target=0.02 if use_volatility else None,
+        )
+        policy = RiskPolicy(
+            max_position_pct=max_position_pct,
+            max_total_exposure_pct=max_total_exposure_pct,
+            max_daily_loss_pct=max_daily_loss_pct,
+            max_open_positions=max_open_positions,
+        )
+        safety = TradingSafetyState(policy=policy)
+        controller = TradingSafetyController(
+            safety=safety,
+            idempotency=IdempotencyGuard(),
+            kill_switch=kill_switch_enabled,
         )
 
         # Price getter for paper executor
@@ -127,10 +216,13 @@ def main() -> int:
         print(f"Initial Cash:  ${args.cash:,.2f}")
         print(f"Check Every:   {args.interval}s")
         print(f"Mode:          {'DRY RUN' if args.dry_run else 'LIVE PAPER'}")
+        print(f"Kill Switch:   {'ON' if kill_switch_enabled else 'OFF'}")
         print("=" * 60)
         print("\nPress Ctrl+C to stop.\n")
 
         iteration = 0
+        stop_loss_by_symbol: dict[str, float] = {}
+        entry_price_by_symbol: dict[str, float] = {}
         while True:
             iteration += 1
             logger.info("iteration_start", iteration=iteration)
@@ -147,35 +239,136 @@ def main() -> int:
 
             # Calculate profile for risk manager
             prices = [c.close for c in candles]
-            returns = [(prices[i] - prices[i - 1]) / prices[i - 1] for i in range(1, len(prices))]
-            volatility = (sum(r * r for r in returns) / len(returns)) ** 0.5 if returns else 0.0
+            returns = [
+                (prices[i] - prices[i - 1]) / prices[i - 1]
+                for i in range(1, len(prices))
+            ]
+            volatility = (
+                (sum(r * r for r in returns) / len(returns)) ** 0.5
+                if returns
+                else 0.0
+            )
 
+            avg_volume = sum(c.volume for c in candles) / len(candles)
             profile = PairProfile(
                 symbol=args.symbol,
                 timeframe=args.timeframe,
-                avg_volume=sum(c.volume for c in candles) / len(candles),
+                avg_volume=avg_volume,
                 volatility=volatility,
             )
 
             # Generate signal
-            score = signal_model.score(candles, profile)
+            enriched = indicator_pipeline.enrich(candles)
+            score = signal_model.score(enriched, profile)
             is_entry = signal_model.is_entry(score)
 
             current_price = candles[-1].close
             position = executor.positions.get(args.symbol, 0.0)
+            current_exposure = abs(position * current_price)
+            current_equity = executor.cash + current_exposure
+            safety.sync_day(candles[-1].timestamp, current_equity)
+
+            stop_loss_price = stop_loss_by_symbol.get(args.symbol)
+            stop_loss_triggered = (
+                position > 0
+                and stop_loss_price is not None
+                and current_price <= stop_loss_price
+            )
 
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
             print(f"  Price: ${current_price:,.2f}")
             print(f"  Signal Score: {score:.4f}")
             print(f"  Position: {position:.6f}")
             print(f"  Cash: ${executor.cash:,.2f}")
+            print(f"  Daily PnL: {safety.daily_realized_pnl:.2f}")
 
             # Execute trading logic
-            if is_entry and position == 0:
+            if controller.should_force_exit() and position > 0:
+                key = controller.make_key(
+                    args.symbol,
+                    args.timeframe,
+                    candles[-1].timestamp,
+                    "kill_switch_exit",
+                )
+                if controller.can_exit(key):
+                    print(
+                        f"  🛑 KILL-SWITCH EXIT: {position:.6f} units"
+                    )
+                    logger.warning(
+                        "kill_switch_exit",
+                        symbol=args.symbol,
+                        size=-position,
+                        price=current_price,
+                    )
+                    if not args.dry_run:
+                        executor.place_market_order(args.symbol, -position)
+                        entry_price = entry_price_by_symbol.get(
+                            args.symbol, current_price
+                        )
+                        realized_pnl = (current_price - entry_price) * position
+                        safety.on_exit(realized_pnl)
+                        entry_price_by_symbol.pop(args.symbol, None)
+                        stop_loss_by_symbol.pop(args.symbol, None)
+                        print("  ✅ Order executed")
+            elif stop_loss_triggered and position > 0:
+                key = controller.make_key(
+                    args.symbol,
+                    args.timeframe,
+                    candles[-1].timestamp,
+                    "stop_loss_exit",
+                )
+                if controller.can_exit(key):
+                    print(
+                        f"  🧯 STOP-LOSS EXIT: {position:.6f} units"
+                    )
+                    logger.warning(
+                        "stop_loss_exit",
+                        symbol=args.symbol,
+                        size=-position,
+                        price=current_price,
+                        stop_loss=stop_loss_price,
+                    )
+                    if not args.dry_run:
+                        executor.place_market_order(args.symbol, -position)
+                        entry_price = entry_price_by_symbol.get(
+                            args.symbol, current_price
+                        )
+                        realized_pnl = (current_price - entry_price) * position
+                        safety.on_exit(realized_pnl)
+                        entry_price_by_symbol.pop(args.symbol, None)
+                        stop_loss_by_symbol.pop(args.symbol, None)
+                        print("  ✅ Order executed")
+            elif is_entry and position == 0:
                 # Entry signal and no position -> BUY
-                size = risk_manager.position_size(profile, executor.cash, score)
-                if size > 0:
-                    print(f"  📈 BUY SIGNAL: {size:.6f} units")
+                key = controller.make_key(
+                    args.symbol,
+                    args.timeframe,
+                    candles[-1].timestamp,
+                    "buy_entry",
+                )
+                can_open, reason = controller.can_enter(
+                    current_equity,
+                    current_exposure,
+                    key,
+                )
+                if not can_open:
+                    logger.info("entry_blocked", reason=reason)
+                target_notional = risk_manager.position_size(
+                    profile, current_equity, score
+                )
+                max_notional = safety.max_entry_notional(
+                    current_equity, current_exposure
+                )
+                entry_notional = min(target_notional, max_notional)
+                size = (
+                    entry_notional / current_price if current_price > 0 else 0.0
+                )
+
+                if size > 0 and can_open:
+                    print(
+                        f"  📈 BUY SIGNAL: {size:.6f} units "
+                        f"({entry_notional:.2f} quote)"
+                    )
                     logger.info(
                         "buy_signal",
                         symbol=args.symbol,
@@ -184,18 +377,40 @@ def main() -> int:
                     )
                     if not args.dry_run:
                         executor.place_market_order(args.symbol, size)
+                        entry_price_by_symbol[args.symbol] = current_price
+                        stop_loss_by_symbol[args.symbol] = (
+                            current_price * (1 - stop_loss_pct)
+                        )
+                        safety.on_entry()
                         print("  ✅ Order executed")
             elif not is_entry and position > 0:
                 # Exit signal and have position -> SELL
-                print(f"  📉 SELL SIGNAL: {position:.6f} units")
+                print(
+                    f"  📉 SELL SIGNAL: {position:.6f} units"
+                )
                 logger.info(
                     "sell_signal",
                     symbol=args.symbol,
                     size=-position,
                     price=current_price,
                 )
-                if not args.dry_run:
+                key = controller.make_key(
+                    args.symbol,
+                    args.timeframe,
+                    candles[-1].timestamp,
+                    "signal_exit",
+                )
+                if not args.dry_run and controller.can_exit(key):
                     executor.place_market_order(args.symbol, -position)
+                    entry_price = entry_price_by_symbol.get(
+                        args.symbol, current_price
+                    )
+                    realized_pnl = (
+                        current_price - entry_price
+                    ) * position
+                    safety.on_exit(realized_pnl)
+                    entry_price_by_symbol.pop(args.symbol, None)
+                    stop_loss_by_symbol.pop(args.symbol, None)
                     print("  ✅ Order executed")
 
             print(f"  Total Trades: {len(executor.trades)}")
