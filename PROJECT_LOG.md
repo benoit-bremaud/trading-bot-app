@@ -6,7 +6,7 @@ Chronological operational log, complementing `git log`.
 
 - Original GitHub repository `benoit-bremaud/trading-bot-app` found deleted; recreated as a private repository and all local branches pushed (including `feature/dashboard-web`, restored from the stale remote-tracking ref). Old PRs, issues and comments are lost. Gitleaks scan of 58 commits: no leaks.
 - Archived the separate `btc-usdt-ratio-rebalancer` project to `~/Documents/02_personal/_archives/btc-usdt-ratio-rebalancer-2026-10-14.tar.gz` (dependencies excluded).
-- Requirements drift review: February MVP exit criteria partly unmet (no drawdown metric, no metrics in paper run), dashboard added despite being a non-goal, KuCoin no longer serves French users.
+- Requirements drift review: February MVP exit criteria partly unmet (no drawdown metric, no metrics in paper run), dashboard added despite being a non-goal, KuCoin no longer serves French users (deposits halted 2025-08-04, full closure 2025-08-25, no MiCA/PSAN licence, on the AMF blacklist since 2024-04-15; [Cryptoast](https://cryptoast.fr/plateforme-crypto-kucoin-quitte-france-explique-pourquoi/)).
 - Requirements reset with the owner: BTC accumulation measured in sats against HODL, OKX Europe BTC/USDC spot, ML filter plus observational LLM supervisor, phased proof before real money. See `docs/requirements/btc-accumulation.md`.
 
 ## 2026-10-15
@@ -21,3 +21,6 @@ Chronological operational log, complementing `git log`.
 - Local review of the requirements branch: 2 Must and 7 Should fixed. Tests 107 passed, coverage 89 %, gitleaks clean on full history. The repository `venv/` is broken under Python 3.14. SonarQube waived for this Markdown-only PR (MCDA 425 vs 300); SonarQube comes with #3.
 - Codex review on #6: 4 findings fixed (per-tranche buy-back stop, deterministic depeg handler R16d, subaccount isolation, warm-up bias test).
 - GitHub Actions never ran on the recreated repository (workflow active, no run recorded; billing not checkable). Owner waived CI for the Markdown-only #6 (MCDA 420 vs 285); investigation moved to #3.
+- #2: added a project `CLAUDE.md`, rewrote `README.md` (English, new goal) and `ROADMAP.md` (conformance #3–#5, UML conception, phases 1–3), deleted the stale `AUDIT_REPORT.md` and `GUIDE_TEST_LOCAL.md` (MCDA 475 vs archive 400; recoverable from git history), sourced the KuCoin France exit.
+- Local review of #2: 0 Must, 3 of 4 Should fixed (mypy target version deferred to #3). Tests 107 passed, coverage 89 % on `trading_bot`. SonarQube waived by the owner for this Markdown-only PR (MCDA 500 vs wait 410 vs local scan 340).
+- Owner approved merging #7 without CI (GitHub Actions still not running, fixed in #3) and with the SonarQube waiver; no Copilot/Codex review was delivered.
