@@ -37,3 +37,7 @@ At least 6 months and 8 trades, a real 20 % drawdown, fault-injection tests pass
 ## 5. Phase 3 — real-money ramp-up (R28) — 💤
 
 2 % of the stack for 3 months, then 5 % for 3 months, then the target pocket (R04). Trade-only keys; pre-defined stop criteria send the bot back to paper.
+
+## Backlog — long-term ideas
+
+- 💤 #8 Prepare the option of training a self-hosted model at home (model interface, reproducible datasets, hardware study).
