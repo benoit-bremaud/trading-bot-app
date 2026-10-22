@@ -19,3 +19,5 @@ Chronological operational log, complementing `git log`.
 
 - Workflow conformance audit: created GitHub Project #68 and issues #1–#5 (requirements PR, project CLAUDE.md and root cleanup, CI security baseline, stale branches, public switch). Owner decision: repository goes public after the release checklist (MCDA 370 vs 330).
 - Local review of the requirements branch: 2 Must and 7 Should fixed. Tests 107 passed, coverage 89 %, gitleaks clean on full history. The repository `venv/` is broken under Python 3.14. SonarQube waived for this Markdown-only PR (MCDA 425 vs 300); SonarQube comes with #3.
+- Codex review on #6: 4 findings fixed (per-tranche buy-back stop, deterministic depeg handler R16d, subaccount isolation, warm-up bias test).
+- GitHub Actions never ran on the recreated repository (workflow active, no run recorded; billing not checkable). Owner waived CI for the Markdown-only #6 (MCDA 420 vs 285); investigation moved to #3.
