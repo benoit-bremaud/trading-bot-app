@@ -1,5 +1,9 @@
 # VISION
 
+> **Superseded on 2026-10-14** by [docs/requirements/btc-accumulation.md](docs/requirements/btc-accumulation.md).
+> The project goal is now BTC accumulation measured in sats against HODL, on OKX Europe BTC/USDC.
+> The February 2026 vision below (KuCoin spot MVP) is kept for history only.
+
 ## Mission
 Deliver a reliable MVP trading bot for KuCoin spot that can ingest market data, generate signals (rules + AI-ready), backtest, manage risk dynamically, and execute safely — all within a CLEAN/SOLID architecture.
 
