@@ -1,149 +1,39 @@
 # ROADMAP
 
-## Project summary
-- Goal: MVP KuCoin spot trading bot with AI, backtesting, and dynamic money management.
-- Scope: data ingestion, signals/AI, backtesting, risk, execution, monitoring, and operator UX.
-- Constraints: CLEAN/SOLID architecture, patterns only when justified, tests are mandatory.
-- Process: commit + push + PR after each feature; PR body in Markdown with Summary/Testing/Notes.
-- Roadmap maintenance: update this file after each merge and when new feature ideas appear.
+Plan derived from [`docs/requirements/btc-accumulation.md`](docs/requirements/btc-accumulation.md) (R01–R40). Tracking: GitHub Project #68. Update this file after each merge.
 
-## Status legend
-- [DONE] merged to main
-- [IN PROGRESS] active work, not merged yet
-- [PLANNED] not started
+Status: ✅ done · 🔄 in progress · ⏳ next · 💤 later
 
-## Roadmap by domain
+## 0. Requirements reset — ✅
 
-### Architecture and foundations
-- [DONE] CLEAN/SOLID layers with domain/application/infrastructure/adapters/shared.
-- [DONE] Ports and entities defined, ARCHITECTURE.md documented.
-- [DONE] Base test suite for architecture/imports.
+- ✅ #1 Requirements R01–R40 for BTC accumulation in sats vs HODL (PR #6).
 
-### Configuration
-- [DONE] Dynamic config merge (default -> timeframe -> pair -> pair+timeframe) + example + tests.
-- [PLANNED] Runtime config validation of required keys per feature.
+## 1. Workflow conformance — 🔄
 
-### Observability
-- [DONE] Context logger + JSON formatter + metrics (in-memory/noop) + tests.
-- [PLANNED] Metrics export integration (Prometheus or similar) and tracing.
+- 🔄 #2 Project `CLAUDE.md`, root docs cleanup, this roadmap.
+- ⏳ #3 CI security baseline (Gitleaks, CodeQL, dependency review), SonarQube, and fix GitHub Actions that never run.
+- ⏳ #4 Delete stale KuCoin-era branches.
+- ⏳ #5 Switch the repository to public after the release checklist.
 
-### CI/Quality
-- [DONE] CI with Python 3.11/3.12 + ruff/mypy/pytest.
-- [PLANNED] Cache pip and optimize dependency install time.
+## 2. UML conception — 💤
 
-## Priority backlog (MVP)
+Model before code, under `docs/architecture/diagrams/` and validated by the owner:
 
-### P0 — MUST HAVE
-- [DONE] Data ingestion KuCoin (spot): robust client + retries/backoff + timeframe mapping.
-- [DONE] OHLCV normalization to `Candle` + tests.
-- [DONE] Market data provider port implementation + tests.
-- [DONE] Simple historical storage (CSV) for replay + tests.
-- [DONE] Minimal backtest loop with PnL + tests.
-- [DONE] Risk manager baseline (max % per trade, optional ATR/vol) + tests.
+- Use cases (operator goals: run a walk-forward, review a supervisor report, promote a phase).
+- Components: own engine + `ccxt` venue adapter, NautilusTrader CI oracle (R40), ML filter, observational LLM supervisor.
+- Sequences and states for the decision loop, the incident pause and the phase gates.
+- Gap analysis of the existing KuCoin-era code: what is kept, adapted or removed.
 
-### P1 — IMPORTANT
-- [DONE] Baseline signal model (rules-based).
-- [DONE] Paper trading execution adapter.
-- [DONE] Minimal CLI entrypoints (ingest/backtest/run).
+## 3. Phase 1 — historical walk-forward (R26) — 💤
 
-### Data ingestion (KuCoin spot)
-- [DONE] KuCoin REST client wrapper with retries and rate-limit handling.
-- [DONE] OHLCV normalization to domain Candle.
-- [DONE] Market data provider port implementation + tests.
-- [PLANNED] Optional local persistence (raw + normalized).
+- Data: daily and intraday BTC/USDC history from 2018, fees modelled (R31–R39 rigour).
+- Measurement in sats against HODL; drawdown and trade metrics.
+- Pass criteria fixed before results: more sats than HODL in ≥ 70 % of rolling one-year windows, better than R12, holds with fees doubled to 0.2 %, single attempt on the untouched final period.
 
-### Historical storage
-- [DONE] CSV candle repository with upsert and range filtering + tests.
+## 4. Phase 2 — forward paper trading (R27) — 💤
 
-### Data processing and features
-- [DONE] Indicator pipeline (RSI, MACD, Bollinger).
-- [PLANNED] Feature engineering for AI models.
+At least 6 months and 8 trades, a real 20 % drawdown, fault-injection tests passed, small gap with the replayed backtest.
 
-### Strategy and AI
-- [DONE] Signal model interface + baseline heuristic model.
-- [DONE] Indicator-based signal model (RSI, MACD, Bollinger Bands).
-- [PLANNED] Pattern recognition (head-shoulders, double bottom).
-- [PLANNED] Model training and evaluation workflow.
+## 5. Phase 3 — real-money ramp-up (R28) — 💤
 
-### Backtesting
-- [DONE] Backtest engine for candle replay (minimal PnL) + tests.
-- [PLANNED] Performance metrics (PnL, drawdown, sharpe, win rate).
-- [PLANNED] Walk-forward / out-of-sample evaluation.
-
-### Risk and money management
-- [DONE] Position sizing (risk % per trade, dynamic based on volatility/ATR).
-- [PLANNED] Portfolio constraints and max exposure rules.
-
-### Execution (spot)
-- [DONE] Paper trading mode.
-- [PLANNED] Live order execution (market orders first).
-- [PLANNED] Safety checks (min size, slippage, cooldowns).
-
-### UX / Ops
-- [DONE] CLI entrypoints for ingestion, backtests, and live.
-- [DONE] Web dashboard (Flask + Plotly.js) with candlesticks, indicators, signals, backtest.
-- [PLANNED] Advanced dashboard metrics and strategy comparison.
-
-## History (chronological)
-
-- 2026-01-29: ROADMAP.md created; state captured.
-- Prior to 2026-01-29 (merged):
-  - Architecture: CLEAN layout, ports, entities, ARCHITECTURE.md, tests.
-  - Config: dynamic merge + example + tests (PR #2).
-  - Cleanup: removed IDE files and updated .gitignore (PR #3).
-  - Logging + metrics scaffolding + tests (PR #4).
-- 2026-01-29 (merged, PR #5):
-  - CI quality gates: ruff + mypy + pytest on Python 3.11/3.12.
-  - Formatting and typing cleanup to satisfy ruff/mypy.
-  - CI test fix: set PYTHONPATH for pytest.
-  - Added requirements-dev.txt and pyproject.toml tooling config.
-- 2026-01-29: Prioritized MVP tasks (P0/P1) agreed.
-- 2026-01-29 (merged, PR #7):
-  - KuCoin market data provider with retries, timeframe mapping, and OHLCV normalization.
-  - Unit tests for normalization, ordering, and retries.
-  - Integration test for KuCoin fetch gated by RUN_INTEGRATION=1.
-- 2026-01-29 (merged, PR #9):
-  - CSV candle repository + tests.
-- 2026-01-29 (merged, PR #10):
-  - ROADMAP update after CSV storage.
-- 2026-01-29 (merged, PR #11):
-  - Minimal backtest engine (buy-and-hold) with BacktestResult + tests.
-- 2026-01-29 (merged, PR #12):
-  - Roadmap update after backtest merge.
-- 2026-01-29 (merged, PR #13):
-  - Roadmap update after PR #12.
-- 2026-01-29 (merged, PR #14):
-  - Baseline risk manager with position sizing + tests.
-- 2026-01-29 (merged, PR #15):
-  - Roadmap update after PR #14.
-- 2026-01-29 (merged, PR #17):
-  - Baseline signal model (moving-average crossover) + tests.
-- 2026-01-29 (merged, PR #18):
-  - Roadmap update after PR #17.
-- 2026-01-29 (merged, PR #16):
-  - Roadmap update after PR #15.
-- 2026-02-05:
-  - CLI entrypoints: backtest.py and run.py scripts.
-  - Paper trading execution fully functional.
-  - Tests for all CLI scripts.
-  - README updated with usage examples.
-- 2026-02-05:
-  - Technical indicators pipeline: RSI, MACD, Bollinger Bands.
-  - Indicator-based signal model with weighted scoring.
-  - Clean architecture: ports in application, implementations in infrastructure.
-  - 38 new tests for indicators and signal model (100% passing).
-- 2026-02-05 (merged, PR #20):
-  - Dashboard web Flask with Plotly.js for visualization.
-  - API REST endpoints: /api/candles, /api/signals, /api/backtest.
-  - Interactive candlestick charts with indicators overlay.
-  - Signal markers (buy/sell) on charts.
-  - Backtest results display (PnL, trades, win rate).
-  - 5 new tests for dashboard API (99 tests passing total).
-  - Fix: added setuptools to requirements-prod.txt for pkg_resources dependency.
-  - AUDIT_REPORT.md and GUIDE_TEST_LOCAL.md added.
-
-## Current focus
-- Feature engineering pipeline for ML models.
-- Pattern recognition (not prediction!) based labeling strategy.
-- First ML model (Random Forest) for pattern recognition.
-- Advanced dashboard metrics (Sharpe, drawdown).
+2 % of the stack for 3 months, then 5 % for 3 months, then the target pocket (R04). Trade-only keys; pre-defined stop criteria send the bot back to paper.
