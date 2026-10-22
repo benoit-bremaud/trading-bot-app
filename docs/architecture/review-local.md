@@ -1,13 +1,13 @@
 # Local review — trading-bot-app (branch chore/project-claude-md-cleanup)
 
 - Date: 2026-10-22
-- Commit: 9ea3282 (+ review fixes, same branch)
+- Commit: 6701bae (re-run 2026-10-22 after the log and roadmap commits; first run on 9ea3282)
 - Scope: branch diff main...HEAD (docs only: CLAUDE.md, README.md, ROADMAP.md, PROJECT_LOG.md, .gitignore, deleted AUDIT_REPORT.md and GUIDE_TEST_LOCAL.md), issue #2
 - Checks run: docs + correctness (doc-auditor) · security (diff read + gitleaks). Design and tests: not applicable, no code in the diff.
 - Mode: `--push` (QA pass not run; no runtime change)
 - Verdict: ship · Must 0 · Should 4 (3 fixed, 1 deferred) · Nice 2
 
-## Pre-merge gate (head SHA 9ea3282 + fixes)
+## Pre-merge gate (head SHA 6701bae)
 | Step | Result |
 |---|---|
 | 1 Tests | ✅ 107 passed, 1 skipped (pytest, fresh Python 3.14 venv with `setuptools<81`) |
