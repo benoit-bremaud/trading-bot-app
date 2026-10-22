@@ -15,7 +15,7 @@
 | 3 SonarQube | ⚠️ not run: no SonarQube project for this repo (tracked in #3) |
 | 4 Secrets | ✅ gitleaks clean on full history · only `.env.example` tracked · diff read: nothing sensitive |
 | 5 QA pass | not run (`--push` mode, docs-only diff) |
-- Gate: **push OK; merge waits for the SonarQube waiver or #3**
+- Gate: **push OK; SonarQube waived by the owner on 2026-10-22 for this Markdown-only diff (MCDA 425 vs 300); SonarQube arrives with #3**
 
 ## 🔴 Must Have
 - `docs/requirements/btc-accumulation.md:83,100,101,107` `[docs]` · numeric rationale given without a source · **fixed**: tagged as own simulation, or as unverified prior-art research
