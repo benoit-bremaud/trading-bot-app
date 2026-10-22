@@ -1,7 +1,8 @@
 # Requirements — BTC accumulation bot
 
-Status: requirements reset validated by the owner on 2026-10-14. Supersedes `VISION.md` (February 2026)
-and the `ai-paper-trading-bot` paper-trading specification (2026-10-05) wherever they conflict.
+Status: R01–R30 validated by the owner on 2026-10-14; R31–R39 added on 2026-10-15 after prior-art
+research; R40 decided by the owner on 2026-10-15. Supersedes `VISION.md` (February 2026) and the
+paper-trading specification of the separate `ai-paper-trading-bot` repository (2026-10-05) wherever they conflict.
 This document authorizes no real-money trading. It is the contract that UML conception and
 implementation must satisfy.
 
@@ -34,7 +35,7 @@ does active trading, not dollar-cost averaging.
 | ID | Requirement | Rationale |
 | --- | --- | --- |
 | R07 | Pair: BTC/USDC spot. | USDT pairs are unavailable to EEA clients of MiCA-licensed venues since 2026-07-01. Exchanges between crypto-assets are assumed tax-neutral in France until the owner confirms with an advisor. |
-| R08 | Spot only. Futures are a distinct later experiment with its own conception and approval. | Leverage and liquidation risk are out of scope until proven need. |
+| R08 | Spot only. Derivatives access on the account (R17) only unlocks the fee tier; no derivatives position is ever opened. Futures are a distinct later experiment with its own conception and approval. | Leverage and liquidation risk are out of scope until proven need. |
 | R09 | Long BTC or flat in USDC, nothing else. The sats risk only exists while the pocket is out of BTC. | Defines where risk can arise. |
 
 ### Decisions and strategy
@@ -53,24 +54,24 @@ does active trading, not dollar-cost averaging.
 | ID | Requirement | Rationale |
 | --- | --- | --- |
 | R16 | 5 % buy-back stop: when the pocket is out of BTC and the price rises 5 % above the exit price, the bot buys back. | Only form of per-trade sats loss; improved results in simulation at no cost. |
-| R16b | No pause based on performance. | A 90-day underperformance pause cut the 2018-start result from 3.57 to 0.66 BTC. |
+| R16b | No pause of the running strategy based on its performance against HODL. The phase-3 stop criteria (R28) are safety criteria (incidents, gap with the replayed backtest), not underperformance. | A 90-day underperformance pause cut the 2018-start result from 3.57 to 0.66 BTC. |
 | R16c | Technical incidents fail closed: missing data, exchange errors or inconsistent state pause new exits, with the pocket returning to or staying in BTC only when it can be done safely. Recovery requires operator approval. | Safety. |
 
 ### Venue and execution
 
 | ID | Requirement | Rationale |
 | --- | --- | --- |
-| R17 | Primary venue: OKX Europe Limited (MiCA, MFSA, authorised 2025-01-27, France covered per ESMA register), account with derivatives access for the 0.08 % maker / 0.10 % taker spot tier. The bot reads the real fee for BTC/USDC at start-up and refuses to trade above 0.10 %. | Only verified venue meeting the fee cap without order-type conditions. |
+| R17 | Primary venue: OKX Europe Limited (MiCA, MFSA, France covered per the ESMA register, checked 2026-10-14), account with derivatives access for the 0.08 % maker / 0.10 % taker spot tier of the schedule in force since 2026-09-25 (spot-only accounts: 0.10 % / 0.20 %), checked 2026-10-14. The bot reads the real fee for BTC/USDC at start-up and refuses to trade above 0.10 %. | Only verified venue meeting the fee cap without order-type conditions. |
 | R18 | Orders are maker post-only limit orders, with a fallback to a market order after a configured deadline. The R16 stop is a market order. | Lowest fees with guaranteed execution. |
 | R19 | The engine is venue-agnostic behind an exchange port. Bybit EU GmbH (MiCA, FMA, France covered) is implemented and tested on public data in paper mode, with no account or funds. | Cheap fallback without operational overhead. |
-| R20 | Exchange API keys have trade permission only, never withdrawal permission, and are never exposed to the language model. | Security. |
+| R20 | Exchange API keys have trade permission only, never withdrawal permission, and are never exposed to the language model. Derivatives trading permission is never granted to the keys. | Security. |
 
 ### Language-model supervisor
 
 | ID | Requirement | Rationale |
 | --- | --- | --- |
 | R21 | The supervisor starts in **observation**: its opinions are logged with their exact inputs and never applied. | It cannot be backtested: the model already knows past events. Its only valid evaluation is forward. |
-| R22 | After proving value forward, it may (level 2) delay or reduce an exit from BTC, and (level 3) pause on incidents such as an exchange hack, stablecoin depeg or regulatory event. It can never sell BTC or initiate a trade. | Its worst possible effect is a return to HODL. |
+| R22 | After proving value forward, it may (level 2; level 1 is observation, R21) delay or reduce an exit from BTC, and (level 3) pause on incidents such as an exchange hack, stablecoin depeg or regulatory event. It can never sell BTC or initiate a trade. | Its worst possible effect is a return to HODL. |
 | R23 | Architecture: a small model (Claude Haiku 5.5) triages news hourly; a large model (Claude Opus 5.5) runs on alerts and for the daily synthesis. | Incident detection must be fast; quality where it matters. |
 | R24 | Hard budget cap of 10 € per month enforced in code, falling back to daily synthesis only. Cost is logged per call and reviewed after one month. | Budget control. |
 | R25 | External text read by the supervisor is untrusted data. It can only produce a structured opinion within the R22 powers. | Prompt-injection resistance. |
@@ -80,7 +81,7 @@ does active trading, not dollar-cost averaging.
 | ID | Requirement | Rationale |
 | --- | --- | --- |
 | R26 | **Phase 1 — historical walk-forward.** To pass: more sats than HODL in at least 70 % of rolling one-year windows; better than R12; results hold with fees doubled to 0.2 %; a final untouched period confirms it, with a single attempt. Criteria are fixed before results are seen. | The only phase with enough trades (~170 since 2018) to measure an edge. |
-| R27 | **Phase 2 — forward paper trading.** To pass: at least 6 months, at least 8 trades, at least one real price drawdown of 20 %, all fault-injection tests passed (stop, incident pause, API outage, stablecoin depeg), small gap with the same period replayed in backtest, fees as modelled. Review point at 12 months if not met. | Three months miss the stop in 72 % of historical windows and any 20 % drawdown in 41 %. |
+| R27 | **Phase 2 — forward paper trading.** To pass: at least 6 months, at least 8 trades, at least one real price drawdown of 20 %, all fault-injection tests passed (stop, incident pause, API outage, stablecoin depeg), small gap with the same period replayed in backtest, fees as modelled. Review point at 12 months if not met. | Own simulation (Evidence): three months miss the stop in 72 % of historical windows and any 20 % drawdown in 41 %. |
 | R28 | **Phase 3 — real money ramp-up.** 2 % of the stack for 3 months, then 5 % for 3 months, then the target pocket (R04). Each step requires no unhandled incident and a small gap with the replayed backtest. Pre-defined stop criteria send the bot back to paper. | Bugs, not strategy statistics, are the unbounded early risk. |
 
 ### Engineering
@@ -97,17 +98,17 @@ does active trading, not dollar-cost averaging.
 | R31 | CI gates against lookahead and indicator warm-up bias: the strategy is re-run on truncated data and signals/indicators must be identical. | Freqtrade `lookahead-analysis` / `recursive-analysis` pattern. |
 | R32 | One code path for backtest, paper and live trading. | Strongest defence against backtest/live divergence (NautilusTrader design). |
 | R33 | Backtests assume pessimistic maker fills: post-only orders may not fill, and the taker fallback is charged. | Maker orders without queue modelling overstate results. |
-| R34 | Purged walk-forward validation with an embargo at least as long as a trade's horizon; samples grouped by date. | Validation used by G-Research and DRW winners. |
-| R35 | ML target: binary "this exit ends with more sats after re-entry, net of fees", each sample weighted by the sats gained or lost. Results reported with confidence intervals (block bootstrap). | Low-sample setting (~20 trades/year); winners' correlations were only 0.05–0.13. |
+| R34 | Purged walk-forward validation with an embargo at least as long as a trade's horizon; samples grouped by date. | Validation used by top solutions of the G-Research and DRW Kaggle crypto competitions (prior-art research 2026-10-15; links not archived, unverified). |
+| R35 | ML target: binary "this exit ends with more sats after re-entry, net of fees", each sample weighted by the sats gained or lost. Results reported with confidence intervals (block bootstrap). | Low-sample setting (~20 trades/year); winning scores in those competitions were correlations of only 0.05–0.13 (same research, unverified). |
 
 ### Supervisor guardrails (added 2026-10-15)
 
 | ID | Requirement | Rationale |
 | --- | --- | --- |
-| R36 | Reading and deciding are separated: the model reading raw text has no power and outputs typed fields only; the deciding step never sees raw text. Inputs are sanitised (HTML stripped, Unicode normalised, homoglyphs rejected). | One day of manipulated headlines cut annual returns by up to 17.7 points in a 2026 study. |
+| R36 | Reading and deciding are separated: the model reading raw text has no power and outputs typed fields only; the deciding step never sees raw text. Inputs are sanitised (HTML stripped, Unicode normalised, homoglyphs rejected). | One day of manipulated headlines cut annual returns by up to 17.7 points in a 2026 study (prior-art research 2026-10-15; link not archived, unverified). |
 | R37 | Any pause or delay requires two independent sources or a measurable confirmation (for example a stablecoin price below 0.98, or the exchange status API). Delays are capped at 72 hours and pauses expire automatically. | A fake "exchange hacked" headline is the obvious attack. |
 | R38 | Prompts, model IDs, thresholds and input sources are frozen and versioned; any change restarts the forward evaluation. A counterfactual "followed the supervisor" portfolio is tracked alongside the real one, and ignored advice is logged too. | Fair forward evaluation. |
-| R39 | Budget exhaustion or API errors fall back to "no opinion", never to "pause". | An outage must not freeze the bot. |
+| R39 | Supervisor budget exhaustion or language-model API errors fall back to "no opinion", never to "pause". | A supervisor outage must not freeze the bot; exchange errors are handled by R16c. |
 
 ### Build approach (decided 2026-10-15)
 
@@ -135,7 +136,8 @@ does active trading, not dollar-cost averaging.
 ## Evidence (2026-10-14)
 
 Simulations on public BTC/USDT daily, 4-hour and hourly data since 2018, using the naive trend rule.
-They ignore slippage and taxes and only set orders of magnitude.
+They ignore slippage and taxes and only set orders of magnitude. The traded pair will be BTC/USDC, whose
+liquidity and spread were not tested. A "trade" in this document is one filled order (an exit or a re-entry).
 
 - Fees: with a 50-day average from January 2023, daily decisions ended at 1.041 BTC with 0.1 % fees and 0.818 BTC with 0.4 %.
 - Frequency: hourly decisions with 0.4 % fees kept 0.031 BTC of 1 BTC since 2018.
