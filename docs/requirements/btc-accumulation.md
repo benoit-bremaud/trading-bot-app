@@ -53,8 +53,9 @@ does active trading, not dollar-cost averaging.
 
 | ID | Requirement | Rationale |
 | --- | --- | --- |
-| R16 | 5 % buy-back stop: when the pocket is out of BTC and the price rises 5 % above the exit price, the bot buys back. | Only form of per-trade sats loss; improved results in simulation at no cost. |
+| R16 | 5 % buy-back stop, applied to every exited tranche (including partial exits sized by R13 or reduced by R22): when the price rises 5 % above that tranche's volume-weighted exit price, the bot buys the tranche back. | Only form of per-trade sats loss; improved results in simulation at no cost. |
 | R16b | No pause of the running strategy based on its performance against HODL. The phase-3 stop criteria (R28) are safety criteria (incidents, gap with the replayed backtest), not underperformance. | A 90-day underperformance pause cut the 2018-start result from 3.57 to 0.66 BTC. |
+| R16d | Stablecoin depeg: a deterministic safety controller (not the language model) buys back BTC with any USDC held once a depeg is confirmed by a measurable signal (USDC below 0.98 on two independent price sources). | The supervisor may only pause (R22); leaving the failing asset must not depend on it. |
 | R16c | Technical incidents fail closed: missing data, exchange errors or inconsistent state pause new exits, with the pocket returning to or staying in BTC only when it can be done safely. Recovery requires operator approval. | Safety. |
 
 ### Venue and execution
@@ -64,7 +65,7 @@ does active trading, not dollar-cost averaging.
 | R17 | Primary venue: OKX Europe Limited (MiCA, MFSA, France covered per the ESMA register, checked 2026-10-14), account with derivatives access for the 0.08 % maker / 0.10 % taker spot tier of the schedule in force since 2026-09-25 (spot-only accounts: 0.10 % / 0.20 %), checked 2026-10-14. The bot reads the real fee for BTC/USDC at start-up and refuses to trade above 0.10 %. | Only verified venue meeting the fee cap without order-type conditions. |
 | R18 | Orders are maker post-only limit orders, with a fallback to a market order after a configured deadline. The R16 stop is a market order. | Lowest fees with guaranteed execution. |
 | R19 | The engine is venue-agnostic behind an exchange port. Bybit EU GmbH (MiCA, FMA, France covered) is implemented and tested on public data in paper mode, with no account or funds. | Cheap fallback without operational overhead. |
-| R20 | Exchange API keys have trade permission only, never withdrawal permission, and are never exposed to the language model. Derivatives trading permission is never granted to the keys. | Security. |
+| R20 | Exchange API keys have trade permission only, never withdrawal permission, and are never exposed to the language model. API permissions cannot restrict spot versus derivatives on OKX, so the bot trades from a dedicated subaccount holding only the pocket, checks at start-up and before each order that the instrument is BTC/USDC spot, and halts if any derivatives position or order exists on the account. | Security. |
 
 ### Language-model supervisor
 
@@ -95,7 +96,7 @@ does active trading, not dollar-cost averaging.
 
 | ID | Requirement | Rationale |
 | --- | --- | --- |
-| R31 | CI gates against lookahead and indicator warm-up bias: the strategy is re-run on truncated data and signals/indicators must be identical. | Freqtrade `lookahead-analysis` / `recursive-analysis` pattern. |
+| R31 | CI gates against lookahead and indicator warm-up bias: the strategy is re-run on data truncated at the end (lookahead) and with several startup-history lengths (warm-up and recursive-indicator bias); signals and converged indicator values on overlapping dates must be identical. | Freqtrade `lookahead-analysis` / `recursive-analysis` pattern. |
 | R32 | One code path for backtest, paper and live trading. | Strongest defence against backtest/live divergence (NautilusTrader design). |
 | R33 | Backtests assume pessimistic maker fills: post-only orders may not fill, and the taker fallback is charged. | Maker orders without queue modelling overstate results. |
 | R34 | Purged walk-forward validation with an embargo at least as long as a trade's horizon; samples grouped by date. | Validation used by top solutions of the G-Research and DRW Kaggle crypto competitions (prior-art research 2026-10-15; links not archived, unverified). |
@@ -131,6 +132,7 @@ does active trading, not dollar-cost averaging.
 - Reuse of code from `trading-bot-app` and from the archived BTC/USDT rebalancer: to decide during conception.
 - R33 fill realism: on daily bars both prototypes filled 93 % of post-only orders as maker, which is likely optimistic. Maker fills should be simulated on intraday data (for example hourly bars) or with a trade-through margin.
 - Post-only orders must rest at least one tick on the passive side of the book; an order at the last price is rejected as taker (found by the 2026-10-15 prototype).
+- R20: confirm that an OKX Europe subaccount keeps the derivatives-tier spot fee (0.08 % / 0.10 %) of the main account.
 - Oracle tolerance for R40: to fix during conception (the prototype gap was 0.18 %).
 
 ## Evidence (2026-10-14)
