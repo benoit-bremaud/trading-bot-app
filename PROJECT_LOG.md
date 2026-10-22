@@ -23,3 +23,4 @@ Chronological operational log, complementing `git log`.
 - GitHub Actions never ran on the recreated repository (workflow active, no run recorded; billing not checkable). Owner waived CI for the Markdown-only #6 (MCDA 420 vs 285); investigation moved to #3.
 - #2: added a project `CLAUDE.md`, rewrote `README.md` (English, new goal) and `ROADMAP.md` (conformance #3–#5, UML conception, phases 1–3), deleted the stale `AUDIT_REPORT.md` and `GUIDE_TEST_LOCAL.md` (MCDA 475 vs archive 400; recoverable from git history), sourced the KuCoin France exit.
 - Local review of #2: 0 Must, 3 of 4 Should fixed (mypy target version deferred to #3). Tests 107 passed, coverage 89 % on `trading_bot`. SonarQube waived by the owner for this Markdown-only PR (MCDA 500 vs wait 410 vs local scan 340).
+- Owner approved merging #7 without CI (GitHub Actions still not running, fixed in #3) and with the SonarQube waiver; no Copilot/Codex review was delivered.
