@@ -35,3 +35,12 @@ Chronological operational log, complementing `git log`.
 - Local review (`review-local`, report in `docs/architecture/review-local.md`): 1 Must and 7 Should fixed — tests for `run_dashboard()` (loopback default, debugger only with `DASHBOARD_DEBUG=1` and refused on a non-loopback host, clear error on a bad port), dust-size executor tests, `setuptools<81` pinned once in `requirements-dev.txt`, README and CLAUDE.md point to `make check-local`, artifact retention 7 days. `scripts/__init__.py` added so coverage sees the scripts (they were imported as a package but not discovered); `--cov=.` with `relative_files` gives SonarQube one source root.
 - **Pre-merge gate waiver (owner, 2026-10-23, MCDA 420 vs block-#3 375 vs fill-in-PR 255):** test coverage 68 % (floor 80) and docstring coverage ≈22 % (floor 90) are debt predating #3, tracked in #10 and decided after the UML gap analysis. The SonarQube `new_coverage` condition (55.6 %) fails only on the 15 ruff-reformatted lines of `scripts/run.py` and the PyYAML import fallback; every line actually added in #3 is covered. QA pass on the running dashboard green (screenshot in `docs/architecture/qa/`).
 - PR #11 opened. The three workflows were triggered for the first time and failed in 2 s without running a step; GitHub's annotation: "The job was not started because recent account payments have failed or your spending limit needs to be increased". Confirms the billing diagnosis; the red checks are not a code failure. Copilot reviewer request again silently not applied (private repository, no Copilot plan).
+- #4: deleted stale branches after owner confirmation (MCDA 450 vs tag-archive 430 vs locals-only 350); none merged, tips recoverable from the SHAs below until git garbage-collects them:
+  - `chore/tooling-makefile` (local + origin, 891c481): abandoned, Makefile superseded by #11.
+  - `feat/exchange-constraints` (local + origin, 63087dd): abandoned KuCoin-era adapter.
+  - `feat/specs-regression-foundation` (local + origin, 78a2df5): abandoned KuCoin-era specs (replaced by R26).
+  - `refactor/code-optimization-clean-solid` (local + origin, 7f36dea): abandoned KuCoin-era refactor.
+  - `origin/feature/dashboard-web` (1343eb5): abandoned duplicate, dashboard shipped via PR #20.
+  - `ci/3-security-baseline` (a1f1d47, local, worktree `reprise-travail-c11138` removed): merged, squashed as f99218a (PR #11).
+  - `claude/reprise-travail-c11138` (91019fb, local): merged, 0 commits ahead.
+  - `origin/dependabot/pip/setuptools-lt-85` kept (active Dependabot PR).
