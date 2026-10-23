@@ -1,19 +1,19 @@
-# Local quality gate. CI replays the same checks; this is the first line.
+# Local quality gate; CI mirrors lint, typecheck and test.
+# Prerequisites: Docker (sast), gitleaks and sonar-scanner on PATH, SONAR_TOKEN for sonar-scan.
 VENV := .venv
-PY := $(VENV)/bin/python
 
 # Pinned by version AND digest; refresh with:
 #   docker pull semgrep/semgrep:<x.y.z> && docker inspect --format '{{index .RepoDigests 0}}' semgrep/semgrep:<x.y.z>
 SEMGREP_IMAGE := semgrep/semgrep:1.181.1@sha256:3db5c7af55eb1f512eac0abf0ab69a97b52c74b5e9a27314c221aee1a78d7ab2
 SEMGREP_RULES := --config p/python --config p/flask
 # In a git worktree .git points outside the mount; Semgrep needs it to scan tracked files only.
-GIT_COMMON_DIR := $(abspath $(shell git rev-parse --git-common-dir))
+GIT_COMMON_DIR = $(abspath $(shell git rev-parse --git-common-dir))
 
 .PHONY: venv lint typecheck test sast scan-secrets sonar-scan check-local
 
 venv:
 	python3 -m venv $(VENV)
-	$(VENV)/bin/pip install "setuptools<81" -e . -r requirements-dev.txt
+	$(VENV)/bin/pip install -e . -r requirements-dev.txt
 
 lint:
 	$(VENV)/bin/ruff check .
@@ -23,7 +23,7 @@ typecheck:
 	$(VENV)/bin/mypy trading_bot tests
 
 test:
-	$(VENV)/bin/pytest tests/ --cov=trading_bot --cov=scripts --cov-report=term-missing --cov-report=xml
+	$(VENV)/bin/pytest tests/ --cov=. --cov-report=term-missing --cov-report=xml
 
 sast:
 	docker run --rm -u "$$(id -u):$$(id -g)" -e HOME=/tmp \

@@ -14,11 +14,11 @@ The project is being reset from an earlier KuCoin BTC-USDT MVP. Real money is on
 ## Development
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install "setuptools<81" -e . -r requirements-dev.txt
-.venv/bin/pytest tests/ --cov=trading_bot --cov=scripts
-.venv/bin/ruff check . && .venv/bin/mypy trading_bot tests
+make venv          # creates .venv and installs the project with dev dependencies
+make check-local   # ruff, mypy, pytest with coverage, Semgrep (Docker), gitleaks
 ```
+
+`make test`, `make lint`, `make typecheck` and `make sonar-scan` (needs `SONAR_TOKEN`) run the steps separately; see the `Makefile` for prerequisites.
 
 The legacy code (KuCoin ingestion, backtest, paper trading, Flask dashboard) still lives in `trading_bot/`, `scripts/` and `dashboard/`; its future is decided during the UML conception step (see the roadmap). Architecture notes: [trading_bot/ARCHITECTURE.md](trading_bot/ARCHITECTURE.md).
 

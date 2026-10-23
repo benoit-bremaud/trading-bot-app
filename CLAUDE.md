@@ -20,16 +20,16 @@ A spot bot that **accumulates more BTC (measured in sats) than simply holding (H
 
 ## Running the tests
 
-The local `venv/` (untracked) is broken under Python 3.14 (no pip, no pytest). Use a fresh venv:
+The local `venv/` (untracked) is broken under Python 3.14 (no pip, no pytest). Use the Makefile, which creates `.venv`:
 
 ```bash
-python3 -m venv .venv
-.venv/bin/pip install "setuptools<81" -e . -r requirements-dev.txt
-.venv/bin/pytest tests/ --cov=trading_bot --cov=scripts
-.venv/bin/ruff check . && .venv/bin/mypy trading_bot tests
+make venv
+make check-local
 ```
 
-`setuptools<81` is required: `kucoin-python` (legacy) still imports `pkg_resources`, removed in setuptools 81; drop the pin once the KuCoin code is gone.
+`check-local` runs ruff, mypy, pytest with coverage, Semgrep (needs Docker) and gitleaks; `make test` and `make sonar-scan` (needs `SONAR_TOKEN`) are also available. Without `make`: `python3 -m venv .venv && .venv/bin/pip install -e . -r requirements-dev.txt`, then `.venv/bin/pytest tests/`.
+
+`requirements-dev.txt` pins `setuptools<81`: `kucoin-python` (legacy) still imports `pkg_resources`, removed in setuptools 81; drop the pin once the KuCoin code is gone.
 
 ## Conception first
 

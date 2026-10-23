@@ -5,6 +5,9 @@ This script starts the Flask dashboard application.
 
 Usage:
     python scripts/start_dashboard.py
+
+Binds to 127.0.0.1:5000 by default; see `dashboard.app.run_dashboard` for the
+DASHBOARD_* variables.
 """
 
 from __future__ import annotations

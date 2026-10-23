@@ -45,6 +45,11 @@ warn_redundant_casts = true
 warn_unused_configs = true
 check_untyped_defs = false
 
+[tool.coverage.run]
+# One source root (`--cov=.`) so coverage.xml maps `__init__.py` files unambiguously for SonarQube.
+relative_files = true
+omit = ["tests/*", ".venv/*", "venv/*", "config/*"]
+
 [tool.pytest.ini_options]
 addopts = "-q"
 markers = [
