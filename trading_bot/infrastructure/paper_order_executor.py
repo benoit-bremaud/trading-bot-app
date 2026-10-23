@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -45,7 +46,7 @@ class PaperOrderExecutor(OrderExecutor):
         return tuple(self._trades)
 
     def place_market_order(self, symbol: str, size: float) -> None:
-        if size == 0.0:
+        if math.isclose(size, 0.0, abs_tol=1e-12):
             return
 
         price = float(self._price_getter(symbol))

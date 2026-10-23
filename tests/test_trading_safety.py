@@ -71,10 +71,7 @@ def test_max_entry_notional_respects_position_and_exposure_caps() -> None:
     state = TradingSafetyState(policy=policy)
 
     # by_position=20, by_exposure=30-15=15 => min=15
-    assert (
-        state.max_entry_notional(1000.0, current_exposure_value=15.0)
-        == 15.0
-    )
+    assert state.max_entry_notional(1000.0, current_exposure_value=15.0) == 15.0
 
 
 def test_sync_day_resets_daily_pnl_on_new_day() -> None:
