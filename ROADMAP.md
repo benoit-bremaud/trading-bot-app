@@ -8,21 +8,31 @@ Status: ✅ done · 🔄 in progress · ⏳ next · 💤 later
 
 - ✅ #1 Requirements R01–R40 for BTC accumulation in sats vs HODL (PR #6).
 
-## 1. Workflow conformance — 🔄
+## 1. Workflow conformance — ✅
 
 - ✅ #2 Project `CLAUDE.md`, root docs cleanup, this roadmap (PR #7).
 - ✅ #3 CI security baseline (Gitleaks, dependency review, Semgrep locally), SonarQube, Dependabot. CodeQL comes with #5 (free on public repositories). GitHub Actions never ran because the private-repository minutes were exhausted; #5 removes the limit. Merged as PR #11 (f99218a).
 - ✅ #4 Delete stale KuCoin-era branches.
 - ✅ #5 Repository switched to public after the release checklist (gitleaks clean on full history), CodeQL workflow added, GitHub Actions running again.
 
-## 2. UML conception — 💤
+## 2. UML conception — ✅
 
-Model before code, under `docs/architecture/diagrams/` and validated by the owner:
+- ✅ #15 UML conception validated by the owner on 2026-10-23: [`docs/architecture/diagrams/btc-accumulation/`](docs/architecture/diagrams/btc-accumulation/) (use case, 3 sequences, component, class, 3 states, data flow), [traceability matrix](docs/architecture/traceability-matrix.md) and [gap analysis](docs/architecture/gap-analysis.md). Decisions: R16 stop polled intraday, halt returns to BTC when safe, legacy daily-loss limit dropped.
 
-- Use cases (operator goals: run a walk-forward, review a supervisor report, promote a phase).
-- Components: own engine + `ccxt` venue adapter, NautilusTrader CI oracle (R40), ML filter, observational LLM supervisor.
-- Sequences and states for the decision loop, the incident pause and the phase gates.
-- Gap analysis of the existing KuCoin-era code: what is kept, adapted or removed.
+## 2b. Build bricks (from the gap analysis) — ⏳
+
+One issue per brick, created when it starts. Legacy modules are deleted inside the brick that replaces them; #10 (coverage and docstring debt) is re-scoped to the survivors and closes when `make test` ≥ 80 % and `make doc-coverage` ≥ 90 % on `main`.
+
+1. ⏳ Domain and ports: sats and `Decimal` model (Pocket, Tranche, Fill, FeeSchedule), `ExchangePort`; the matching tests and docstrings.
+2. 💤 Data: `ccxt` OKX market-data adapter (daily and hourly BTC/USDC history), ingest script moved off KuCoin, KuCoin code removed; OKX variables added to `.env.example`.
+3. 💤 Simulator and baselines: pessimistic maker fills (R33), HODL and trend rule R12 baselines, sats report (R02, R03).
+4. 💤 Walk-forward and bias gates (R26, R31, R34, R35): ends phase 1 evidence.
+5. 💤 Daily cycle, journal and replay (R10, R11, R18, R29, R32), `SafetyLimits` (R06), kill switch.
+6. 💤 Protections: tranche stop, depeg controller, fail-closed incidents (R16, R16c, R16d).
+7. 💤 CI oracle (R40) and its tolerance.
+8. 💤 ML filter (R13–R15), one input at a time.
+9. 💤 Supervisor in observation (R21–R25, R36–R39).
+10. 💤 Phase gate and paper-trading runner (R27).
 
 ## 3. Phase 1 — historical walk-forward (R26) — 💤
 
