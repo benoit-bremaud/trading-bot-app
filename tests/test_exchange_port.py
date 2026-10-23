@@ -23,7 +23,7 @@ class FakeExchange:
     def __init__(self) -> None:
         self.orders: dict[str, OrderStatus] = {}
 
-    def fetch_fee_schedule(self, symbol: str) -> FeeSchedule:
+    def fetch_fee_schedule(self) -> FeeSchedule:
         return FeeSchedule(Decimal("0.0008"), Decimal("0.0010"))
 
     def fetch_balances(self) -> Balances:
@@ -57,7 +57,7 @@ def test_fake_exchange_satisfies_the_port_and_round_trips_an_order() -> None:
     order_id = exchange.place_order(intent)
     status = exchange.fetch_order(order_id)
 
-    exchange.fetch_fee_schedule("BTC/USDC").assert_below_cap()
+    exchange.fetch_fee_schedule().assert_below_cap()
     assert status.state is OrderState.FILLED
     assert status.filled_sats == 500
     assert status.fills[0].maker

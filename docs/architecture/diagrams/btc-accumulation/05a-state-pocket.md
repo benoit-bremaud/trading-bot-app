@@ -25,6 +25,8 @@ stateDiagram-v2
   PartiallyOut --> Paused: incident or supervisor pause
   FullyOut --> Paused: incident
   Paused --> InBtc: expiry or operator approval, back to BTC
+  Paused --> PartiallyOut: expiry or approval, tranches still open
+  Paused --> FullyOut: expiry or approval, fully out
   Paused --> Halted: operator halt
   InBtc --> Halted: operator halt
   Halted --> [*]
@@ -34,4 +36,6 @@ stateDiagram-v2
 
 - `Paused` blocks new exits only. Buy-back stops, depeg buy-back and returns to BTC stay allowed (R16c, R16d).
 - A supervisor pause expires automatically (R37), an incident pause needs operator approval (R16c).
+- Added in #17 (to validate): leaving `Paused` follows the holdings, so tranche stops stay armed when the pocket is still out of BTC. `Halted` is refused while a tranche is open: the caller returns to BTC first.
+- Open: the pause reason (supervisor, which expires, or incident, which needs the operator) is not modelled yet; it comes with the supervisor and protection bricks.
 - Decided (owner, 2026-10-23): `Halted` returns the pocket to BTC when it can be done safely, as in R16c.

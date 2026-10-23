@@ -56,8 +56,8 @@ class OrderExecutor(Protocol):
 class ExchangePort(Protocol):
     """Venue access shared by backtest, paper and live (R32); only adapters implement it."""
 
-    def fetch_fee_schedule(self, symbol: str) -> FeeSchedule:
-        """Read the real maker and taker rates for ``symbol`` (R17)."""
+    def fetch_fee_schedule(self) -> FeeSchedule:
+        """Read the real maker and taker rates of the single BTC/USDC pair (R17)."""
         ...
 
     def fetch_balances(self) -> Balances:
@@ -65,11 +65,18 @@ class ExchangePort(Protocol):
         ...
 
     def place_order(self, intent: OrderIntent) -> OrderId:
-        """Submit ``intent`` (post-only limit or market) and return its id."""
+        """Submit ``intent`` (post-only limit or market) and return its id.
+
+        A post-only rejection shows as ``OrderState.REJECTED`` in ``fetch_order``;
+        transport or venue failures raise, so the caller fails closed (R16c).
+        """
         ...
 
     def cancel_order(self, order_id: OrderId) -> OrderStatus:
-        """Cancel a resting order and return its final status, fills included."""
+        """Cancel a resting order and return its final status, fills included.
+
+        An order already filled is returned as filled, not an error.
+        """
         ...
 
     def fetch_order(self, order_id: OrderId) -> OrderStatus:

@@ -29,6 +29,20 @@ classDiagram
     +int pocketTargetBps
     +state PocketState
     +openTranches() Tranche[]
+    +recordExit(trancheId, fills) Pocket
+    +recordBuyback(trancheId, fill) Pocket
+    +pause() Pocket
+    +resume() Pocket
+    +halt() Pocket
+  }
+  class Balances {
+    +int btcSats
+    +Decimal usdc
+  }
+  class OrderStatus {
+    +OrderId orderId
+    +OrderState state
+    +Fill[] fills
   }
   class Tranche {
     +UUID id
@@ -107,6 +121,9 @@ classDiagram
 ```
 
 ## Notes
+
+- `Pocket` is immutable: each transition returns a new pocket (replayable, R29). One exit order, whatever the number of fills, opens one `Tranche` at the fills' VWAP.
+- `OrderStatus` and `Balances` are what `ExchangePort` returns; `Side`, `OrderKind`, `OrderState` and `OrderId` are plain value types.
 
 - `SupervisorOpinion.kind` has no "sell" value by construction: the worst effect is a return to HODL (R22).
 - `Tranche.stopPrice()` = `exitVwap` × 1.05 (R16), one per exited tranche including partial exits.

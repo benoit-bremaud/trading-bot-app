@@ -7,6 +7,7 @@ from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 
+from trading_bot.domain.checks import require_decimal, require_int
 from trading_bot.domain.sats import SATS_PER_BTC
 
 
@@ -40,10 +41,9 @@ def _require_sats(sats: int) -> None:
 
 
 def _require_price(name: str, price: Decimal) -> None:
-    """Raise unless ``price`` is a positive ``Decimal``."""
-    if not isinstance(price, Decimal):
-        raise TypeError(f"{name} must be a Decimal, got {type(price).__name__}")
-    if not price > 0:
+    """Raise unless ``price`` is a finite, positive ``Decimal``."""
+    require_decimal(name, price)
+    if price <= 0:
         raise ValueError(f"{name} must be positive, got {price}")
 
 
@@ -59,6 +59,8 @@ class OrderIntent:
 
     def __post_init__(self) -> None:
         """Enforce that a post-only limit has a price and a timezone-aware deadline."""
+        if not isinstance(self.side, Side) or not isinstance(self.kind, OrderKind):
+            raise TypeError("side and kind must be Side and OrderKind members")
         _require_sats(self.sats)
         if self.kind is OrderKind.LIMIT_POST_ONLY:
             if self.limit_price is None or self.deadline is None:
@@ -66,13 +68,16 @@ class OrderIntent:
             _require_price("limit_price", self.limit_price)
             if self.deadline.tzinfo is None:
                 raise ValueError("deadline must be timezone-aware")
-        elif self.limit_price is not None:
-            raise ValueError("a market order has no limit_price")
+        elif self.limit_price is not None or self.deadline is not None:
+            raise ValueError("a market order has no limit_price or deadline")
 
 
 @dataclass(frozen=True, slots=True)
 class Fill:
-    """One execution: size in sats, price in USDC per BTC, fee rate charged."""
+    """One execution: size in sats, price in USDC per BTC, fee rate charged.
+
+    ``fee_rate`` is the maker or taker rate that applied, as flagged by ``maker``.
+    """
 
     sats: int
     price: Decimal
@@ -83,8 +88,9 @@ class Fill:
         """Validate sizes and rates."""
         _require_sats(self.sats)
         _require_price("price", self.price)
-        if not isinstance(self.fee_rate, Decimal) or self.fee_rate < 0:
-            raise ValueError(f"fee_rate must be a non-negative Decimal, got {self.fee_rate!r}")
+        require_decimal("fee_rate", self.fee_rate)
+        if not 0 <= self.fee_rate < 1:
+            raise ValueError(f"fee_rate must be in [0, 1), got {self.fee_rate}")
 
     @property
     def notional_usdc(self) -> Decimal:
@@ -93,7 +99,11 @@ class Fill:
 
     @property
     def fee_usdc(self) -> Decimal:
-        """Fee in USDC, charged on the notional (conservative single convention)."""
+        """Fee in USDC, charged on the notional for both sides.
+
+        A conservative single convention, to reconcile with the real OKX accounting
+        in the adapter brick.
+        """
         return self.notional_usdc * self.fee_rate
 
 
@@ -132,9 +142,7 @@ class Balances:
 
     def __post_init__(self) -> None:
         """Balances cannot be negative."""
-        if isinstance(self.btc_sats, bool) or not isinstance(self.btc_sats, int):
-            raise TypeError("btc_sats must be an int")
-        if not isinstance(self.usdc, Decimal):
-            raise TypeError("usdc must be a Decimal")
+        require_int("btc_sats", self.btc_sats)
+        require_decimal("usdc", self.usdc)
         if self.btc_sats < 0 or self.usdc < 0:
             raise ValueError("balances cannot be negative")
