@@ -1,0 +1,8 @@
+.venv/
+venv/
+.env*
+htmlcov/
+docs/
+data/
+models/
+notebooks/

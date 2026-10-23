@@ -38,12 +38,17 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.11"
 ignore_missing_imports = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unused_configs = true
 check_untyped_defs = false
+
+[tool.coverage.run]
+# One source root (`--cov=.`) so coverage.xml maps `__init__.py` files unambiguously for SonarQube.
+relative_files = true
+omit = ["tests/*", ".venv/*", "venv/*", "config/*"]
 
 [tool.pytest.ini_options]
 addopts = "-q"

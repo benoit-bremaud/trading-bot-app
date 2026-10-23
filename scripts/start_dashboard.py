@@ -5,6 +5,9 @@ This script starts the Flask dashboard application.
 
 Usage:
     python scripts/start_dashboard.py
+
+Binds to 127.0.0.1:5000 by default; see `dashboard.app.run_dashboard` for the
+DASHBOARD_* variables.
 """
 
 from __future__ import annotations
@@ -16,16 +19,12 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from dashboard.app import app  # noqa: E402
-from trading_bot.shared.logging import get_logger  # noqa: E402
-
-logger = get_logger(__name__)
+from dashboard.app import run_dashboard  # noqa: E402
 
 
 def main() -> int:
-    """Start the dashboard server."""
-    logger.info("starting_dashboard", host="0.0.0.0", port=5000)
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    """Start the dashboard server (see `run_dashboard` for the environment variables)."""
+    run_dashboard()
     return 0
 
 

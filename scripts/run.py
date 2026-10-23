@@ -44,9 +44,7 @@ from trading_bot.shared.logging import get_logger
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Run the trading bot in paper trading mode"
-    )
+    parser = argparse.ArgumentParser(description="Run the trading bot in paper trading mode")
     parser.add_argument(
         "--symbol",
         type=str,
@@ -239,15 +237,8 @@ def main() -> int:
 
             # Calculate profile for risk manager
             prices = [c.close for c in candles]
-            returns = [
-                (prices[i] - prices[i - 1]) / prices[i - 1]
-                for i in range(1, len(prices))
-            ]
-            volatility = (
-                (sum(r * r for r in returns) / len(returns)) ** 0.5
-                if returns
-                else 0.0
-            )
+            returns = [(prices[i] - prices[i - 1]) / prices[i - 1] for i in range(1, len(prices))]
+            volatility = (sum(r * r for r in returns) / len(returns)) ** 0.5 if returns else 0.0
 
             avg_volume = sum(c.volume for c in candles) / len(candles)
             profile = PairProfile(
@@ -270,9 +261,7 @@ def main() -> int:
 
             stop_loss_price = stop_loss_by_symbol.get(args.symbol)
             stop_loss_triggered = (
-                position > 0
-                and stop_loss_price is not None
-                and current_price <= stop_loss_price
+                position > 0 and stop_loss_price is not None and current_price <= stop_loss_price
             )
 
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]")
@@ -291,9 +280,7 @@ def main() -> int:
                     "kill_switch_exit",
                 )
                 if controller.can_exit(key):
-                    print(
-                        f"  🛑 KILL-SWITCH EXIT: {position:.6f} units"
-                    )
+                    print(f"  🛑 KILL-SWITCH EXIT: {position:.6f} units")
                     logger.warning(
                         "kill_switch_exit",
                         symbol=args.symbol,
@@ -302,9 +289,7 @@ def main() -> int:
                     )
                     if not args.dry_run:
                         executor.place_market_order(args.symbol, -position)
-                        entry_price = entry_price_by_symbol.get(
-                            args.symbol, current_price
-                        )
+                        entry_price = entry_price_by_symbol.get(args.symbol, current_price)
                         realized_pnl = (current_price - entry_price) * position
                         safety.on_exit(realized_pnl)
                         entry_price_by_symbol.pop(args.symbol, None)
@@ -318,9 +303,7 @@ def main() -> int:
                     "stop_loss_exit",
                 )
                 if controller.can_exit(key):
-                    print(
-                        f"  🧯 STOP-LOSS EXIT: {position:.6f} units"
-                    )
+                    print(f"  🧯 STOP-LOSS EXIT: {position:.6f} units")
                     logger.warning(
                         "stop_loss_exit",
                         symbol=args.symbol,
@@ -330,9 +313,7 @@ def main() -> int:
                     )
                     if not args.dry_run:
                         executor.place_market_order(args.symbol, -position)
-                        entry_price = entry_price_by_symbol.get(
-                            args.symbol, current_price
-                        )
+                        entry_price = entry_price_by_symbol.get(args.symbol, current_price)
                         realized_pnl = (current_price - entry_price) * position
                         safety.on_exit(realized_pnl)
                         entry_price_by_symbol.pop(args.symbol, None)
@@ -353,22 +334,13 @@ def main() -> int:
                 )
                 if not can_open:
                     logger.info("entry_blocked", reason=reason)
-                target_notional = risk_manager.position_size(
-                    profile, current_equity, score
-                )
-                max_notional = safety.max_entry_notional(
-                    current_equity, current_exposure
-                )
+                target_notional = risk_manager.position_size(profile, current_equity, score)
+                max_notional = safety.max_entry_notional(current_equity, current_exposure)
                 entry_notional = min(target_notional, max_notional)
-                size = (
-                    entry_notional / current_price if current_price > 0 else 0.0
-                )
+                size = entry_notional / current_price if current_price > 0 else 0.0
 
                 if size > 0 and can_open:
-                    print(
-                        f"  📈 BUY SIGNAL: {size:.6f} units "
-                        f"({entry_notional:.2f} quote)"
-                    )
+                    print(f"  📈 BUY SIGNAL: {size:.6f} units ({entry_notional:.2f} quote)")
                     logger.info(
                         "buy_signal",
                         symbol=args.symbol,
@@ -378,16 +350,12 @@ def main() -> int:
                     if not args.dry_run:
                         executor.place_market_order(args.symbol, size)
                         entry_price_by_symbol[args.symbol] = current_price
-                        stop_loss_by_symbol[args.symbol] = (
-                            current_price * (1 - stop_loss_pct)
-                        )
+                        stop_loss_by_symbol[args.symbol] = current_price * (1 - stop_loss_pct)
                         safety.on_entry()
                         print("  ✅ Order executed")
             elif not is_entry and position > 0:
                 # Exit signal and have position -> SELL
-                print(
-                    f"  📉 SELL SIGNAL: {position:.6f} units"
-                )
+                print(f"  📉 SELL SIGNAL: {position:.6f} units")
                 logger.info(
                     "sell_signal",
                     symbol=args.symbol,
@@ -402,12 +370,8 @@ def main() -> int:
                 )
                 if not args.dry_run and controller.can_exit(key):
                     executor.place_market_order(args.symbol, -position)
-                    entry_price = entry_price_by_symbol.get(
-                        args.symbol, current_price
-                    )
-                    realized_pnl = (
-                        current_price - entry_price
-                    ) * position
+                    entry_price = entry_price_by_symbol.get(args.symbol, current_price)
+                    realized_pnl = (current_price - entry_price) * position
                     safety.on_exit(realized_pnl)
                     entry_price_by_symbol.pop(args.symbol, None)
                     stop_loss_by_symbol.pop(args.symbol, None)

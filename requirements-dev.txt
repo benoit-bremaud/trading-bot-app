@@ -3,6 +3,9 @@
 # Include production dependencies
 -r requirements-prod.txt
 
+# kucoin-python imports pkg_resources, removed in setuptools 81; drop with the KuCoin code
+setuptools<81
+
 # Code quality and linting
 ruff
 mypy

@@ -72,15 +72,28 @@ def test_insufficient_position_raises_and_does_not_change_state():
     assert executor.positions == positions_after_buy
 
 
-def test_zero_size_order_is_noop():
-    prices = {"BTC-USDT": 10.0}
-    executor = PaperOrderExecutor(initial_cash=100.0, price_getter=_price_getter_factory(prices))
+@pytest.mark.parametrize("size", [0.0, 1e-13, -1e-13])
+def test_dust_size_order_is_noop_without_fetching_a_price(size: float):
+    def price_getter(symbol: str) -> float:
+        raise AssertionError("price must not be fetched for a dust order")
 
-    executor.place_market_order("BTC-USDT", 0.0)
+    executor = PaperOrderExecutor(initial_cash=100.0, price_getter=price_getter)
+
+    executor.place_market_order("BTC-USDT", size)
 
     assert executor.cash == pytest.approx(100.0)
     assert executor.positions == {}
     assert len(executor.trades) == 0
+
+
+def test_small_but_real_size_order_trades():
+    prices = {"BTC-USDT": 10.0}
+    executor = PaperOrderExecutor(initial_cash=100.0, price_getter=_price_getter_factory(prices))
+
+    executor.place_market_order("BTC-USDT", 1e-9)
+
+    assert len(executor.trades) == 1
+    assert executor.positions == {"BTC-USDT": pytest.approx(1e-9)}
 
 
 def test_initial_cash_validation():

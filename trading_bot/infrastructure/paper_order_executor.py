@@ -6,6 +6,9 @@ from datetime import UTC, datetime
 
 from trading_bot.application.ports import OrderExecutor
 
+# Below this, a size or position is floating-point dust, not a real quantity.
+_DUST_EPSILON = 1e-12
+
 
 @dataclass(frozen=True, slots=True)
 class PaperTrade:
@@ -45,7 +48,7 @@ class PaperOrderExecutor(OrderExecutor):
         return tuple(self._trades)
 
     def place_market_order(self, symbol: str, size: float) -> None:
-        if size == 0.0:
+        if abs(size) < _DUST_EPSILON:
             return
 
         price = float(self._price_getter(symbol))
@@ -77,13 +80,12 @@ class PaperOrderExecutor(OrderExecutor):
         current = self._positions.get(symbol, 0.0)
         # size is negative for sell orders
         new_position = current + size
-        if new_position < -1e-12:
+        if new_position < -_DUST_EPSILON:
             raise ValueError("insufficient position for sell order")
 
         # Selling reduces position (size is negative) and increases cash
         self._cash -= size * price
-        if abs(new_position) < 1e-12:
-            # Avoid keeping tiny floating-point dust positions
+        if abs(new_position) < _DUST_EPSILON:
             self._positions.pop(symbol, None)
         else:
             self._positions[symbol] = new_position

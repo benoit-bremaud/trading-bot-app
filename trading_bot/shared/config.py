@@ -67,7 +67,7 @@ def _load_file(path: str) -> dict[str, Any]:
             return tomllib.load(f)
     if ext in (".yaml", ".yml"):
         try:
-            import yaml  # type: ignore[import-untyped]
+            import yaml
         except ImportError as exc:
             raise ConfigError("PyYAML is required to load YAML config files") from exc
         with open(path, encoding="utf-8") as f:
