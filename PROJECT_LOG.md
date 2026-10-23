@@ -44,3 +44,5 @@ Chronological operational log, complementing `git log`.
   - `ci/3-security-baseline` (a1f1d47, local, worktree `reprise-travail-c11138` removed): merged, squashed as f99218a (PR #11).
   - `claude/reprise-travail-c11138` (91019fb, local): merged, 0 commits ahead.
   - `origin/dependabot/pip/setuptools-lt-85` kept (active Dependabot PR).
+- #4 merged as PR #13 (squash 73aa7e4) under the same billing waiver (Actions could not run on the private repository).
+- #5: Public Release Checklist run before the switch (MCDA 465 vs merge-first 335 vs no-CI 285): gitleaks on full history (55 commits) clean, no sensitive tracked files, no tags, no development secret to rotate (no OKX key exists yet), `.env.example` holds placeholders only (still KuCoin-named, to be rewritten for OKX with the engine work), gitleaks CI job present. Repository switched to **public** on 2026-10-23. Added `codeql.yml` (Python, push/PR/weekly, SHA-pinned, `contents: read` plus `security-events: write` on the job only). `dependency-review.yml` self-activates now that the repository is public.
