@@ -11,8 +11,8 @@ Status: ✅ done · 🔄 in progress · ⏳ next · 💤 later
 ## 1. Workflow conformance — 🔄
 
 - ✅ #2 Project `CLAUDE.md`, root docs cleanup, this roadmap (PR #7).
-- 🔄 #3 CI security baseline (Gitleaks, dependency review, Semgrep locally), SonarQube, Dependabot. CodeQL comes with #5 (free on public repositories). GitHub Actions never ran because the private-repository minutes were exhausted; #5 removes the limit.
-- ⏳ #4 Delete stale KuCoin-era branches.
+- ✅ #3 CI security baseline (Gitleaks, dependency review, Semgrep locally), SonarQube, Dependabot. CodeQL comes with #5 (free on public repositories). GitHub Actions never ran because the private-repository minutes were exhausted; #5 removes the limit. Merged as PR #11 (f99218a).
+- ✅ #4 Delete stale KuCoin-era branches.
 - ⏳ #5 Switch the repository to public after the release checklist.
 
 ## 2. UML conception — 💤
