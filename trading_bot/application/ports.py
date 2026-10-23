@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Protocol
 
 from trading_bot.domain.entities import BacktestResult, Candle, PairProfile
+from trading_bot.domain.fees import FeeSchedule
+from trading_bot.domain.orders import Balances, OrderId, OrderIntent, OrderStatus
 
 
 class MarketDataProvider(Protocol):
@@ -49,3 +51,27 @@ class BacktestEngine(Protocol):
 
 class OrderExecutor(Protocol):
     def place_market_order(self, symbol: str, size: float) -> None: ...
+
+
+class ExchangePort(Protocol):
+    """Venue access shared by backtest, paper and live (R32); only adapters implement it."""
+
+    def fetch_fee_schedule(self, symbol: str) -> FeeSchedule:
+        """Read the real maker and taker rates for ``symbol`` (R17)."""
+        ...
+
+    def fetch_balances(self) -> Balances:
+        """Return the tradable BTC and USDC balances."""
+        ...
+
+    def place_order(self, intent: OrderIntent) -> OrderId:
+        """Submit ``intent`` (post-only limit or market) and return its id."""
+        ...
+
+    def cancel_order(self, order_id: OrderId) -> OrderStatus:
+        """Cancel a resting order and return its final status, fills included."""
+        ...
+
+    def fetch_order(self, order_id: OrderId) -> OrderStatus:
+        """Return the current status and fills of an order."""
+        ...

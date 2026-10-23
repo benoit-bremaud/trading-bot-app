@@ -17,13 +17,13 @@ Status: ✅ done · 🔄 in progress · ⏳ next · 💤 later
 
 ## 2. UML conception — ✅
 
-- ✅ #15 UML conception validated by the owner on 2026-10-23: [`docs/architecture/diagrams/btc-accumulation/`](docs/architecture/diagrams/btc-accumulation/) (use case, 3 sequences, component, class, 3 states, data flow), [traceability matrix](docs/architecture/traceability-matrix.md) and [gap analysis](docs/architecture/gap-analysis.md). Decisions: R16 stop polled intraday, halt returns to BTC when safe, legacy daily-loss limit dropped.
+- ✅ #15 UML conception validated by the owner on 2026-10-23 (PR #16, 5aac708): [`docs/architecture/diagrams/btc-accumulation/`](docs/architecture/diagrams/btc-accumulation/) (use case, 3 sequences, component, class, 3 states, data flow), [traceability matrix](docs/architecture/traceability-matrix.md) and [gap analysis](docs/architecture/gap-analysis.md). Decisions: R16 stop polled intraday, halt returns to BTC when safe, legacy daily-loss limit dropped.
 
 ## 2b. Build bricks (from the gap analysis) — ⏳
 
 One issue per brick, created when it starts. Legacy modules are deleted inside the brick that replaces them; #10 (coverage and docstring debt) is re-scoped to the survivors and closes when `make test` ≥ 80 % and `make doc-coverage` ≥ 90 % on `main`.
 
-1. ⏳ Domain and ports: sats and `Decimal` model (Pocket, Tranche, Fill, FeeSchedule), `ExchangePort`; the matching tests and docstrings.
+1. 🔄 #17 Domain and ports: sats and `Decimal` model (Pocket, Tranche, OrderIntent, Fill, FeeSchedule, HardLimits), `ExchangePort`; the matching tests and docstrings. Nothing legacy is deleted here: `Candle` leaves with brick 2, `OrderExecutor` with brick 3.
 2. 💤 Data: `ccxt` OKX market-data adapter (daily and hourly BTC/USDC history), ingest script moved off KuCoin, KuCoin code removed; OKX variables added to `.env.example`.
 3. 💤 Simulator and baselines: pessimistic maker fills (R33), HODL and trend rule R12 baselines, sats report (R02, R03).
 4. 💤 Walk-forward and bias gates (R26, R31, R34, R35): ends phase 1 evidence.
