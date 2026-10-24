@@ -6,14 +6,17 @@
 - Checks run: design · docs · tests · security · correctness (mode `--push`, no QA pass)
 - Verdict: ship after fixes — all Must Have resolved · Must 0 open · Should 0 open · Nice 7 deferred
 
-## Pre-merge gate (push mode, steps 1–4)
+## Pre-merge gate (head SHA c56daf5, all run locally, 2026-10-24)
 | Step | Result |
 |---|---|
-| 1 Tests | ✅ 239 passed, 1 skipped (unit; no E2E in this project yet) |
-| 2 Coverage | tests 100 % on every new line (`trading_bot` total 91 %, repo 68 % before) · docs 100 % on the new public surface, repo ≈ 37 % (legacy debt, #10) |
+| 1 Tests | ✅ 239 passed, 1 skipped (unit); ruff, mypy, Semgrep 0 findings; no E2E suite in this project yet |
+| 2 Coverage | tests **74 %** repo-wide (68 % before this PR, floor 80 → #10 waiver) and **100 %** on every new line · docs **100 %** on the new surface (53/53 symbols), **42.7 %** repo-wide (floor 90 → #10 debt, legacy files) |
 | 3 SonarQube | ✅ PASSED (new_coverage 93.9 %, new violations 0, duplication 0 %) |
-| 4 Secrets | ✅ gitleaks clean (`origin/main..HEAD`) · only `.env.example` tracked (placeholders) · diff read: nothing sensitive |
-| 5 QA pass | skipped (`--push`); no runtime path touched, to run before merge |
+| 4 Secrets | ✅ gitleaks clean (full history and `origin/main..HEAD`) · only `.env.example` tracked (placeholders) · diff read: nothing sensitive |
+| 5 QA pass | ✅ smoke only (no runtime path touched): dashboard started locally, `/` 200, static assets 200, console clean, network clean, `/api/backtest` GET 405 (POST-only, expected); screenshot `docs/architecture/qa/2026-10-24-dashboard-smoke-17.png` |
+| Conception | ✅ amended 04-class and 05a-state-pocket render with `mmdc`; 9 of 15 UML classes of 04 implemented, the other 6 (`DecisionRecord`, `ExitCandidate`, `PhaseGate`, `SatsReport`, `SizedExit`, `SupervisorOpinion`) belong to bricks 3–10; code-only types are enums, errors and value types documented in the 04 notes |
+- Gate: **GREEN on the PR's own code; repo-wide coverage floors (80 % tests, 90 % docs) remain under the #10 waiver** (coverage 74 %, docs 42.7 %).
+- External reviewers: GitHub Actions and Copilot are not relied on; Codex answered "usage limit reached" (no review).
 
 ## 🔴 Must Have (all fixed)
 - `pocket.py` `[design][correctness]` · one exit filled in several pieces made duplicate tranche ids and lost the VWAP → `record_exit(id, fills)` opens one tranche at the fills' VWAP, duplicate id refused (owner decision A1).
